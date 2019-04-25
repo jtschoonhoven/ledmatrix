@@ -1,0 +1,13 @@
+Adafruit-Blinka==1.2.8
+adafruit-circuitpython-neopixel==3.3.6
+Adafruit-PlatformDetect==1.0.0
+Adafruit-PureIO==0.2.3
+ansicolors==1.1.8
+entrypoints==0.3
+flake8==3.7.7
+mccabe==0.6.1
+pillow==6.0.0
+pycodestyle==2.5.0
+pyflakes==2.1.1
+rpi_ws281x==4.1.0
+sysv-ipc==1.0.0
