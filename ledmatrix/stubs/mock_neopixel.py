@@ -76,17 +76,6 @@ class MockNeoPixel(collections.abc.Sequence):
             self._pixel_matrix[self._row_index][pixel_index] = color
         self._print_pixel_matrix()
 
-    # def _print_pixel_matrix(self) -> str:
-    #     """Print the pixel matrix to stdout."""
-    #     buf: str = ''
-    #     for pixel_row in self._pixel_matrix:
-    #         buf += '\n'
-    #         for pixel in pixel_row:
-    #             buf += pixel.print()
-    #     buf += '\n'
-    #     os.system('clear')  # use os.system('cls') for windows
-    #     sys.stdout.write(buf)
-
     def _rgb_to_grb(self, color: Color) -> Color:
         """Translate a Color object from RGB to GRB."""
         return Color(red=color.green, green=color.red, blue=color.blue, white=color.white)
