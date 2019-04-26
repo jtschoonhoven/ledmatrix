@@ -36,6 +36,8 @@ class LedMatrix(collections.abc.Sequence):
     ) -> None:
         num_pixels = num_rows * num_cols
         gpio_pin = getattr(board, gpio_pin_name)
+        self.width = num_cols
+        self.height = num_rows
 
         # initialize underlying NeoPixel
         self._neopixel = NeoPixel(
@@ -58,6 +60,12 @@ class LedMatrix(collections.abc.Sequence):
     def fill(self, value: color.Color) -> None:
         for row in self._matrix:
             row.fill(value)
+
+    def shift_left(self, values: List[color.Color]) -> None:
+        for row_index in range(self.height):
+            row = self._matrix[row_index]
+            value = values[row_index]
+            row.shift_left(value)
 
     def _neopixel_set(
         self,
@@ -98,11 +106,22 @@ class _LedMatrixRow(collections.abc.Sequence):
     ) -> None:
         self._parent_matrix = parent_matrix
         self._parent_matrix_index = parent_matrix_index
+        # TODO: use collections.deque for self._row for efficient left-element removal
         self._row = [color.BLACK for _ in range(len)]
 
     def fill(self, value: color.Color) -> None:
         for pixel_index in range(len(self._row)):
             self[pixel_index] = value
+
+    def pop(self, index: int) -> color.Color:
+        return self._row.pop(index)
+
+    def append(self, value: color.Color) -> None:
+        return self._row.append(value)
+
+    def shift_left(self, value: color.Color) -> None:
+        self.pop(0)
+        self.append(value)
 
     def __len__(self) -> int:
         return len(self._row)
