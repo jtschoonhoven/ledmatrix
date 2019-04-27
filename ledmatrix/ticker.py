@@ -12,7 +12,7 @@ class Ticker(matrix.LedMatrix):
         font_expand_px=0,  # type: int
         font_shift_down_px=0,  # type: int
         delay_seconds=0.01,  # type: float
-        **kwargs,  # type: Any
+        **kwargs  # type: Any
     ):  # type: (...) -> None
         self._font_expand_px = font_expand_px
         self._font_shift_down_px = font_shift_down_px
