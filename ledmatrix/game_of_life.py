@@ -119,11 +119,12 @@ if __name__ == '__main__':
     parser.add_argument('--rows', '-r', type=int, default=4)
     parser.add_argument('--cols', '-c', type=int, default=4)
     parser.add_argument('--turns', '-t', type=int, default=20)
+    parser.add_argument('--delay', '-d', type=float, default=0.2)
     args = parser.parse_args()
 
     game = GameOfLife(num_rows=args.rows, num_cols=args.cols)
     for round_index in range(args.turns):
-        time.sleep(0.1)
+        time.sleep(args.delay)
         game.render()
         game.next()
     game.deinit()
