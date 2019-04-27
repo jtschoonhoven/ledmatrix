@@ -1,7 +1,5 @@
 import collections
-import os
 from enum import Enum
-from typing import List
 
 try:
     import board
@@ -81,6 +79,10 @@ class LedMatrix(collections.abc.Sequence):
             row = self._matrix[row_index]
             value = values[row_index]
             row.shift_left(value)
+
+    def deinit(self):  # type: () -> None
+        """Turn off and unmount the neopixel."""
+        self._neopixel.deinit()
 
     def _neopixel_set(
         self,
@@ -163,17 +165,23 @@ class _LedMatrixRow(collections.abc.Sequence):
 
 
 if __name__ == '__main__':
-    a = LedMatrix(auto_write=False, num_cols=40)
-    for _ in range(20):
-        a.fill(color.RED)
-        os.system('clear')
-        print(a)
-        # a.render()
-        a.fill(color.GREEN)
-        os.system('clear')
-        print(a)
-        # a.render()
-        a.fill(color.BLUE)
-        os.system('clear')
-        print(a)
-        # a.render()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--rows', '-r', type=int, default=4)
+    parser.add_argument('--cols', '-c', type=int, default=4)
+    parser.add_argument('--turns', '-t', type=int, default=20)
+    args = parser.parse_args()
+
+    matrix = LedMatrix()
+    for round_index in range(args.turns):
+        matrix.fill(color.RED)
+        matrix.render()
+        matrix.fill(color.GREEN)
+        matrix.render()
+        matrix.fill(color.BLUE)
+        matrix.render()
+        matrix.fill(color.WHITE)
+        matrix.render()
+        matrix.fill(color.BLACK)
+        matrix.render()
+    matrix.deinit()

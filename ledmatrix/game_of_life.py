@@ -1,7 +1,6 @@
-import os
 import time
 import random
-from typing import Any, NamedTuple, Set
+from typing import NamedTuple
 
 from ledmatrix import color, matrix
 
@@ -127,3 +126,4 @@ if __name__ == '__main__':
         time.sleep(0.1)
         game.render()
         game.next()
+    game.deinit()

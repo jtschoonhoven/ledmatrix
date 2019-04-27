@@ -1,6 +1,5 @@
 import os
 import time
-from typing import Any
 
 from ledmatrix import color, font, matrix
 
@@ -63,20 +62,29 @@ class Ticker(matrix.LedMatrix):
                     next_col.append(color.BLACK)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
-            os.system('clear')  # TODO: rm
-            print(self)  # TODO: change to self.render()
+            self.render()
 
 
 if __name__ == '__main__':
-    t = Ticker(
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--text', '-t', type=str, default='Hello, World!')
+    parser.add_argument('--rows', '-r', type=int, default=7)
+    parser.add_argument('--cols', '-c', type=int, default=4)
+    parser.add_argument('--zoom', '-z', type=int, default=3)
+    parser.add_argument('--shift', '-s', type=int, default=-1)
+    parser.add_argument('--delay', '-d', type=float, default=0.02)
+    args = parser.parse_args()
+
+    ticker = Ticker(
         origin=matrix.MATRIX_ORIGIN.NORTHEAST,
         orientation=matrix.MATRIX_ORIENTATION.COLUMN,
-        num_rows=7,
-        num_cols=40,
-        font_expand_px=3,
-        font_shift_down_px=-1,
-        delay_seconds=0.02,
+        num_rows=args.cols,
+        num_cols=args.rows,
+        font_expand_px=args.zoom,
+        font_shift_down_px=args.shift,
+        delay_seconds=args.delay,
         auto_write=False,
     )
-    for _ in range(2):
-        t.write_scroll('Culdesac Rulez!!!')
+    ticker.write_scroll(args.text)
+    ticker.deinit()
