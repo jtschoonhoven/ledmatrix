@@ -1,17 +1,15 @@
-from typing import Dict, List
-
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
-DEFAULT_FONT_HEIGHT_PX: int = 7
+DEFAULT_FONT_HEIGHT_PX = 7
 DEFAULT_FONT_PATH = 'ledmatrix/fonts/zig.ttf'
 PIL_IMAGE_MODE_BW = '1'  # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
 PIL_COLOR_WHITE = 1
 PIL_BITMAP_ORIGIN = (0, 0)
 
-_char_cache: Dict[str, List[List[bool]]] = {}
-_text_cache: Dict[str, List[List[bool]]] = {}
+_char_cache = {}  # type: Dict[str, List[List[bool]]]
+_text_cache = {}  # type: Dict[str, List[List[bool]]]
 
 
 def char_to_matrix(
@@ -42,7 +40,7 @@ def char_to_matrix(
     # populate the matrix
     matrix_rows = []  # type: List[List[bool]]
     for row_index in range(font_height_px):
-        row: List[bool] = []
+        row = []  # type: List[bool]
         for col_index in range(bitmap_width_px):
             try:
                 if image.getpixel((col_index, row_index)):
@@ -66,8 +64,8 @@ def text_to_matrix(
     font_expand_px=3,   # type: int
     font_shift_down_px=-1,   # type: int
 ):  # type: (...) -> List[List[bool]]
-    char_matrices: List[List[List[bool]]] = []
-    text_matrix: List[List[bool]] = []
+    char_matrices = []  # type:  List[List[List[bool]]]
+    text_matrix = []  # type:  List[List[bool]] =
 
     # return from cache if available
     # NOTE: assumes we're only ever using a single font height
