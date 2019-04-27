@@ -98,7 +98,11 @@ class LedMatrix(collections.abc.Sequence):
             else:  # self.origin == MATRIX_ORIGIN.NORTHEAST
                 neopixel_index = neopixel_col_index + (self.height - matrix_row_index - 1)
 
-        self._neopixel[neopixel_index] = value
+        # set value on pixel
+        if value.white is None:
+            self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
+        else:
+            self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
 
     def __repr__(self):  # type: () -> str
         buf = ''
