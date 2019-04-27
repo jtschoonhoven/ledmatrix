@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any
 
 from ledmatrix import color, font, matrix
@@ -11,10 +12,12 @@ class Ticker(matrix.LedMatrix):
         *args: Any,
         font_expand_px: int = 0,
         font_shift_down_px: int = 0,
+        delay_seconds: float = 0.01,
         **kwargs: Any,
     ) -> None:
         self._font_expand_px = font_expand_px
         self._font_shift_down_px = font_shift_down_px
+        self._delay_seconds = delay_seconds
         super().__init__(*args, **kwargs)
 
     def write_static(self, text: str, value: color.Color = color.RED) -> None:
@@ -59,11 +62,22 @@ class Ticker(matrix.LedMatrix):
                 else:
                     next_col.append(color.BLACK)
             self.shift_left(next_col)
+            time.sleep(self._delay_seconds)
             os.system('clear')
-            print(self)
+            # print(self)
+            self.render()
 
 
 if __name__ == '__main__':
-    t = Ticker(num_cols=60, font_expand_px=3, font_shift_down_px=-1)
-    while True:
+    t = Ticker(
+        origin=matrix.MATRIX_ORIGIN.NORTHWEST,
+        orientation=matrix.MATRIX_ORIENTATION.ROW,
+        num_rows=10,
+        num_cols=40,
+        font_expand_px=2,
+        font_shift_down_px=-1,
+        delay_seconds=0.02,
+        auto_write=False,
+    )
+    for _ in range(2):
         t.write_scroll('Culdesac Rulez!!!')

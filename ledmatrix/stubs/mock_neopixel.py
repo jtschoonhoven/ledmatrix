@@ -1,4 +1,5 @@
 import collections
+import os
 
 from ledmatrix import color
 from ledmatrix.color import Color, ColorOrder, GRB, GRBW, RGB, RGBW  # noqa: F401
@@ -67,6 +68,7 @@ class MockNeoPixel(collections.abc.Sequence):
     def show(self) -> None:
         """Prints the entire pixel matrix if auto_write=False."""
         if not self.auto_write:
+            os.system('clear')
             print(self)
 
     def deinit(self) -> None:

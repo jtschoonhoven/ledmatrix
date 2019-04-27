@@ -1,4 +1,5 @@
 import collections
+import os
 from enum import Enum
 from typing import List
 
@@ -9,16 +10,14 @@ DEFAULT_NUM_ROWS = 7
 DEFAULT_NUM_COLS = 42
 
 
-class MatrixOrigin(Enum):
-    northeast: str = 'NE'
-    southeast: str = 'SE'
-    southwest: str = 'SW'
-    northwest: str = 'NW'
+class MATRIX_ORIGIN(Enum):
+    NORTHEAST: str = 'NE'
+    NORTHWEST: str = 'NW'
 
 
-class MatrixOrientation(Enum):
-    column: str = 'COL'
-    row: str = 'ROW'
+class MATRIX_ORIENTATION(Enum):
+    COLUMN: str = 'COL'
+    ROW: str = 'ROW'
 
 
 class LedMatrix(collections.abc.Sequence):
@@ -31,13 +30,15 @@ class LedMatrix(collections.abc.Sequence):
         brightness: float = 1,
         auto_write: bool = False,
         pixel_order: color.ColorOrder = color.RGB,
-        origin: MatrixOrigin = MatrixOrigin.northeast,
-        orientation: MatrixOrientation = MatrixOrientation.column,
+        origin: MATRIX_ORIGIN = MATRIX_ORIGIN.NORTHEAST,
+        orientation: MATRIX_ORIENTATION = MATRIX_ORIENTATION.ROW,
     ) -> None:
         num_pixels = num_rows * num_cols
         gpio_pin = getattr(board, gpio_pin_name)
         self.width = num_cols
         self.height = num_rows
+        self.origin = origin
+        self.orientation = orientation
 
         # initialize underlying NeoPixel
         self._neopixel = NeoPixel(
@@ -74,8 +75,21 @@ class LedMatrix(collections.abc.Sequence):
         value: color.Color,
     ) -> None:
         """Update the NeoPixel pixel at the index corresponding to this position in the matrix."""
-        matrix_row = self._matrix[matrix_row_index]
-        neopixel_index = (matrix_row_index * len(matrix_row)) + matrix_col_index
+        neopixel_row_index = matrix_row_index * self.width
+        neopixel_col_index = matrix_col_index * self.height
+
+        if self.orientation == MATRIX_ORIENTATION.ROW:
+            if self.origin == MATRIX_ORIGIN.NORTHWEST:
+                neopixel_index = neopixel_row_index + matrix_col_index
+            else:  # self.origin == MATRIX_ORIGIN.NORTHEAST
+                neopixel_index = neopixel_row_index + (self.width - matrix_col_index - 1)
+
+        else:  # self.orientation == MATRIX_ORIENTATION.COLUMN
+            if self.origin == MATRIX_ORIGIN.NORTHWEST:
+                neopixel_index = neopixel_col_index + matrix_row_index
+            else:  # self.origin == MATRIX_ORIGIN.NORTHEAST
+                neopixel_index = neopixel_col_index + (self.height - matrix_row_index - 1)
+
         self._neopixel[neopixel_index] = value
 
     def __repr__(self) -> str:
@@ -97,7 +111,6 @@ class LedMatrix(collections.abc.Sequence):
 
 
 class _LedMatrixRow(collections.abc.Sequence):
-
     def __init__(
         self,
         parent_matrix: LedMatrix,
@@ -113,15 +126,12 @@ class _LedMatrixRow(collections.abc.Sequence):
         for pixel_index in range(len(self._row)):
             self[pixel_index] = value
 
-    def pop(self, index: int) -> color.Color:
-        return self._row.pop(index)
-
-    def append(self, value: color.Color) -> None:
-        return self._row.append(value)
-
     def shift_left(self, value: color.Color) -> None:
-        self.pop(0)
-        self.append(value)
+        self._row.pop(0)
+        self._row.append(value)
+        for pixel_index in range(len(self)):
+            pixel_value = self[pixel_index]
+            self._parent_matrix._neopixel_set(self._parent_matrix_index, pixel_index, pixel_value)
 
     def __len__(self) -> int:
         return len(self._row)
@@ -135,12 +145,17 @@ class _LedMatrixRow(collections.abc.Sequence):
 
 
 if __name__ == '__main__':
-    a = LedMatrix(auto_write=False)
-    a.render()
-    print(a)
-    a[0][0] = color.RED
-    a.render()
-    print(a)
-    a.fill(color.GREEN)
-    a.render()
-    print(a)
+    a = LedMatrix(auto_write=False, num_cols=40)
+    for _ in range(20):
+        a.fill(color.RED)
+        os.system('clear')
+        # print(a)
+        a.render()
+        a.fill(color.GREEN)
+        os.system('clear')
+        # print(a)
+        a.render()
+        a.fill(color.BLUE)
+        os.system('clear')
+        # print(a)
+        a.render()
