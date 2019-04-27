@@ -115,9 +115,15 @@ class GameOfLife(matrix.LedMatrix):
 
 
 if __name__ == '__main__':
-    game = GameOfLife(num_rows=7, num_cols=40)
-    for round_index in range(90):
-        os.system('clear')
-        print(game)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--rows', '-r', type=int, default=4)
+    parser.add_argument('--cols', '-c', type=int, default=4)
+    parser.add_argument('--turns', '-t', type=int, default=20)
+    args = parser.parse_args()
+
+    game = GameOfLife(num_rows=args.rows, num_cols=args.cols)
+    for round_index in range(args.turns):
         time.sleep(0.1)
+        game.render()
         game.next()
