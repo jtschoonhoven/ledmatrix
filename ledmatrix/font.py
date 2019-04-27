@@ -15,12 +15,12 @@ _text_cache: Dict[str, List[List[bool]]] = {}
 
 
 def char_to_matrix(
-    char: str,
-    font_path: str = DEFAULT_FONT_PATH,
-    font_height_px: int = DEFAULT_FONT_HEIGHT_PX,
-    font_expand_px: int = 0,
-    font_shift_down_px: int = 0,
-) -> List[List[bool]]:
+    char,  # type: str
+    font_path=DEFAULT_FONT_PATH,  # type: str
+    font_height_px=DEFAULT_FONT_HEIGHT_PX,  # type: int
+    font_expand_px=0,  # type: int
+    font_shift_down_px=0,  # type: int
+):  # type: (...) -> List[List[bool]]
     """Convert a string to a 2-D matrix.
 
     From: stackoverflow.com/questions/36384353/generate-pixel-matrices-from-characters-in-string
@@ -40,7 +40,7 @@ def char_to_matrix(
     draw.text(origin, char, font=font)
 
     # populate the matrix
-    matrix_rows: List[List[bool]] = []
+    matrix_rows = []  # type: List[List[bool]]
     for row_index in range(font_height_px):
         row: List[bool] = []
         for col_index in range(bitmap_width_px):
@@ -60,12 +60,12 @@ def char_to_matrix(
 
 
 def text_to_matrix(
-    text: str,
-    font_path: str = DEFAULT_FONT_PATH,
-    font_height_px: int = DEFAULT_FONT_HEIGHT_PX,
-    font_expand_px: int = 3,
-    font_shift_down_px: int = -1,
-) -> List[List[bool]]:
+    text,  # type: str
+    font_path=DEFAULT_FONT_PATH,   # type: str
+    font_height_px=DEFAULT_FONT_HEIGHT_PX,   # type: int
+    font_expand_px=3,   # type: int
+    font_shift_down_px=-1,   # type: int
+):  # type: (...) -> List[List[bool]]
     char_matrices: List[List[List[bool]]] = []
     text_matrix: List[List[bool]] = []
 

@@ -5,13 +5,9 @@ from typing import Any, NamedTuple, Set
 
 from ledmatrix import color, matrix
 
-INITIAL_POPULATION_DENSITY: float = 0.7
+INITIAL_POPULATION_DENSITY = 0.7  # type: float
 
-
-class CellCoords(NamedTuple):
-    """X and Y index of a "cell" in the game."""
-    row_index: int
-    col_index: int
+CellCoords = NamedTuple('CellCoords', [('row_index', int), ('col_index', int)])
 
 
 class GameOfLife(matrix.LedMatrix):
@@ -19,10 +15,15 @@ class GameOfLife(matrix.LedMatrix):
 
     See: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life.
     """
-    def __init__(self, *args: Any, color: color.Color = color.RED, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args,  # type: Any
+        color=color.RED,  # type: color.Color
+        **kwargs  # type: Any
+    ):  # type: (...) -> None
         super().__init__(*args, **kwargs)
         self._color = color
-        self._living_cell_coordinates: Set[CellCoords] = set()
+        self._living_cell_coordinates = set()  # type: Set[CellCoords]
 
         # initialize to random state
         for row_index in range(self.height):
@@ -32,9 +33,9 @@ class GameOfLife(matrix.LedMatrix):
                     self._living_cell_coordinates.add(cell)
                     self[row_index][col_index] = color
 
-    def next(self) -> None:
+    def next(self):  # type: () -> None
         """Determine which cells live and die and apply to matrix."""
-        next_living_cell_coordinates: Set[CellCoords] = set()
+        next_living_cell_coordinates = set()  # type: Set[CellCoords]
 
         # get batch of cells that will survive / regenerate in the next round
         for cell in self._living_cell_coordinates:
@@ -56,11 +57,11 @@ class GameOfLife(matrix.LedMatrix):
                 else:
                     self[row_index][col_index] = color.BLACK
 
-    def _is_alive(self, cell: CellCoords) -> bool:
+    def _is_alive(self, cell):  # type: (CellCoords) -> bool
         """True if the given cell is alive in the current round."""
         return cell in self._living_cell_coordinates
 
-    def _will_live(self, cell: CellCoords) -> bool:
+    def _will_live(self, cell):  # type: (CellCoords) -> bool
         """True if the given cell will survive to the next round."""
         neighbors = self._get_neighbor_coordinates(cell)
         num_living_neighbors = sum(self._is_alive(neighbor) for neighbor in neighbors)
@@ -80,12 +81,12 @@ class GameOfLife(matrix.LedMatrix):
         # any remaining cells are alive and will survive to the next round
         return True
 
-    def _get_neighbor_coordinates(self, cell: CellCoords) -> Set[CellCoords]:
+    def _get_neighbor_coordinates(self, cell):  # type: (CellCoords) -> Set[CellCoords]
         """Return the coordinates of all 8 neighboring cells for the given cell.
 
         The board "wraps" so that cells along opposite boundaries are considered neighbors.
         """
-        neighbors: Set[CellCoords] = set()
+        neighbors = set()  # type: Set[CellCoords]
 
         for row_offset in (-1, 0, 1):
             for col_offset in (-1, 0, 1):

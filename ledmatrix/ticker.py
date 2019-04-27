@@ -9,18 +9,18 @@ class Ticker(matrix.LedMatrix):
 
     def __init__(
         self,
-        *args: Any,
-        font_expand_px: int = 0,
-        font_shift_down_px: int = 0,
-        delay_seconds: float = 0.01,
-        **kwargs: Any,
-    ) -> None:
+        *args,  # type: Any
+        font_expand_px=0,  # type: int
+        font_shift_down_px=0,  # type: int
+        delay_seconds=0.01,  # type: float
+        **kwargs,  # type: Any
+    ):  # type: (...) -> None
         self._font_expand_px = font_expand_px
         self._font_shift_down_px = font_shift_down_px
         self._delay_seconds = delay_seconds
         super().__init__(*args, **kwargs)
 
-    def write_static(self, text: str, value: color.Color = color.RED) -> None:
+    def write_static(self, text, value=color.RED):  # type: (str, color.Color) -> None
         text_matrix = font.text_to_matrix(
             text,
             font_height_px=self.height,
@@ -38,10 +38,10 @@ class Ticker(matrix.LedMatrix):
                     else:
                         self[row_index][col_index] = color.BLACK
 
-        os.system('clear')
+        os.system('clear')  # TODO: rm
         print(self)  # TODO: change to self.render()
 
-    def write_scroll(self, text: str, value: color.Color = color.RED) -> None:
+    def write_scroll(self, text, value=color.RED):  # type: (str, color.Color) -> None
         text_matrix = font.text_to_matrix(
             text,
             font_height_px=self.height,
@@ -63,18 +63,17 @@ class Ticker(matrix.LedMatrix):
                     next_col.append(color.BLACK)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
-            os.system('clear')
-            # print(self)
-            self.render()
+            os.system('clear')  # TODO: rm
+            print(self)  # TODO: change to self.render()
 
 
 if __name__ == '__main__':
     t = Ticker(
-        origin=matrix.MATRIX_ORIGIN.NORTHWEST,
-        orientation=matrix.MATRIX_ORIENTATION.ROW,
-        num_rows=10,
+        origin=matrix.MATRIX_ORIGIN.NORTHEAST,
+        orientation=matrix.MATRIX_ORIENTATION.COLUMN,
+        num_rows=7,
         num_cols=40,
-        font_expand_px=2,
+        font_expand_px=3,
         font_shift_down_px=-1,
         delay_seconds=0.02,
         auto_write=False,

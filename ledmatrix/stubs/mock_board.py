@@ -11,7 +11,7 @@ class MockBoard:
     def __init__(self) -> None:
         pass
 
-    def __getattribute__(self, attr_name: str) -> Any:
+    def __getattribute__(self, attr_name):  # type: (str) -> Any
         try:
             return super().__getattribute__(attr_name)
         except AttributeError:
