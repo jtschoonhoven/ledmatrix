@@ -48,6 +48,12 @@ class LedMatrix(collections.abc.Sequence):
         self.origin = origin
         self.orientation = orientation
 
+        # coerce pixel_order to plain tuple
+        if pixel_order.white is None:
+            pixel_order = (pixel_order.red, pixel_order.green, pixel_order.blue)
+        else:
+            pixel_order = (pixel_order.red, pixel_order.green, pixel_order.blue, pixel_order.white)
+
         # initialize underlying NeoPixel
         self._neopixel = NeoPixel(
             gpio_pin,
