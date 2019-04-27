@@ -42,8 +42,8 @@ class Color(_ColorTuple):
         return color_block
 
 
-RED = Color(255, 0, 0, 0)
-GREEN = Color(0, 255, 0, 0)
-BLUE = Color(0, 0, 255, 0)
-WHITE = Color(255, 255, 255, 0)
-BLACK = Color(0, 0, 0, 0)
+RED = Color(255, 0, 0, None)
+GREEN = Color(0, 255, 0, None)
+BLUE = Color(0, 0, 255, None)
+WHITE = Color(255, 255, 255, None)
+BLACK = Color(0, 0, 0, None)
