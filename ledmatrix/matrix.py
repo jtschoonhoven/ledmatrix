@@ -24,6 +24,8 @@ class MATRIX_ORIGIN(Enum):
 class MATRIX_ORIENTATION(Enum):
     COLUMN = 'COL'  # type: str
     ROW = 'ROW'  # type: str
+    ALTERNATING_COLUMN = 'ALT_COL'  # type: str
+    ALTERNATING_ROW = 'ALT_ROW'  # type: str
 
 
 class LedMatrix(collections.abc.Sequence):
@@ -91,24 +93,76 @@ class LedMatrix(collections.abc.Sequence):
         value,  # type: color.Color
     ):  # type: (...) -> None
         """Update the NeoPixel pixel at the index corresponding to this position in the matrix."""
+        # the "neopixel row index" is the index of the first pixel for the specified row
         neopixel_row_index = matrix_row_index * self.width
         neopixel_col_index = matrix_col_index * self.height
 
+        # whether this row / column orientation is swapped
+        neopixel_col_alt = neopixel_col_index % 2
+        neopixel_row_alt = neopixel_row_index % 2
+
+        # strips are laid horizontal across the board
         if self.orientation == MATRIX_ORIENTATION.ROW:
+            # the first pixel is in the top-left corner of the board
             if self.origin == MATRIX_ORIGIN.NORTHWEST:
                 neopixel_index = neopixel_row_index + matrix_col_index
-            else:  # self.origin == MATRIX_ORIGIN.NORTHEAST
-                neopixel_index = neopixel_row_index + (self.width - matrix_col_index - 1)
+            # the first pixel is in the top-right corner of the board
+            else:
+                neopixel_index = neopixel_row_index + (self.width - matrix_col_index) - 1
 
-        else:  # self.orientation == MATRIX_ORIENTATION.COLUMN
+        # strips are laid vertically across the board
+        elif self.orientation == MATRIX_ORIENTATION.COLUMN:
+            # the first pixel is in the top-left corner of the board
             if self.origin == MATRIX_ORIGIN.NORTHWEST:
                 neopixel_index = neopixel_col_index + matrix_row_index
-            else:  # self.origin == MATRIX_ORIGIN.NORTHEAST
-                neopixel_index = neopixel_col_index + (self.height - matrix_row_index - 1)
+            # the first pixel is in the top-right corner of the board
+            else:
+                neopixel_index = neopixel_col_index + (self.height - matrix_row_index) - 1
+
+        # strips are laid horizontally across the board and alternate left-right orientations
+        elif self.orientation == MATRIX_ORIENTATION.ALTERNATING_ROW:
+            # the first pixel is in the top-left corner of the board
+            if self.origin == MATRIX_ORIGIN.NORTHWEST:
+                # this strip is oriented left-to-right
+                if not neopixel_row_alt:
+                    neopixel_index = neopixel_row_index + matrix_col_index
+                # this strip's orientation is switched right-to-left
+                else:
+                    neopixel_index = (neopixel_row_index - (self.width - 1)) + matrix_col_index
+            # the first pixel is in the top-right corner of the board
+            else:
+                # this strip is oriented right-to-left
+                if not neopixel_row_alt:
+                    neopixel_index = neopixel_row_index + (self.width - (matrix_col_index - 1))
+                # this strip's orientation is switched left-to-right
+                else:
+                    neopixel_index = neopixel_row_index + matrix_col_index
+
+        # strips are laid vertically across the board and alternate down-up orientations
+        else:
+            # the first pixel is in the top-left corner of the board
+            if self.origin == MATRIX_ORIGIN.NORTHWEST:
+                # this strip is oriented top-to-bottom
+                if not neopixel_col_alt:
+                    neopixel_index = neopixel_col_index + matrix_row_index
+                # this strip's orientation is switched bottom-to-top
+                else:
+                    neopixel_index = (neopixel_col_index - (self.height - 1)) + matrix_row_index
+            # the first pixel is in the top-right corner of the board
+            else:
+                # this strip is oriented top-to-bottom
+                if not neopixel_col_alt:
+                    neopixel_index = neopixel_col_index + (self.height - (matrix_row_index - 1))
+                # this strip's orientation is switched bottom-to-top
+                else:
+                    neopixel_index = neopixel_col_index + matrix_row_index
 
         # set value on pixel
         if value.white is None:
-            self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
+            try:
+                self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
+            except:
+                import pdb; pdb.set_trace()
         else:
             self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
 
