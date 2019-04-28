@@ -76,10 +76,9 @@ class MockNeoPixel(collections.abc.Sequence):
 
     def deinit(self):  # type: () -> None
         """Blank out the NeoPixels and release the pin."""
-        color = Color(0, 0, 0, 0)
-        for pixel_index in range(self.pixel_width):
-            self._pixel_matrix[self._row_index][pixel_index] = color
-        self._print_pixel_matrix()
+        for pixel_index in range(len(self)):
+            self[pixel_index] = color.BLACK
+        self.show()
 
     def _rgb_to_grb(self, color: Color):  # type: (Color) -> Color
         """Translate a Color object from RGB to GRB."""
