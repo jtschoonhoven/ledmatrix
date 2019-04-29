@@ -1,4 +1,5 @@
 import collections
+import time
 from enum import Enum
 
 try:
@@ -92,10 +93,16 @@ class LedMatrix(collections.abc.Sequence):
         matrix_col_index,  # type: int
         value,  # type: color.Color
     ):  # type: (...) -> None
-        """Update the NeoPixel pixel at the index corresponding to this position in the matrix."""
+        """Update the NeoPixel pixel at the index corresponding to this position in the matrix.
+
+        TODO: make this less of a clusterfuck.
+        """
         # the "neopixel row index" is the index of the first pixel for the specified row
         neopixel_row_index = matrix_row_index * self.width
-        neopixel_col_index = matrix_col_index * self.height
+        if self.origin == MATRIX_ORIGIN.NORTHWEST:
+            neopixel_col_index = matrix_col_index * self.height
+        else:
+            neopixel_col_index = ((self.width - 1) - matrix_col_index) * self.height
 
         # whether this row / column orientation is swapped
         neopixel_col_alt = neopixel_col_index % 2
@@ -133,7 +140,7 @@ class LedMatrix(collections.abc.Sequence):
             else:
                 # this strip is oriented right-to-left
                 if not neopixel_row_alt:
-                    neopixel_index = neopixel_row_index + (self.width - (matrix_col_index - 1))
+                    neopixel_index = neopixel_row_index + ((self.width - 1) - matrix_col_index)
                 # this strip's orientation is switched left-to-right
                 else:
                     neopixel_index = neopixel_row_index + matrix_col_index
@@ -147,15 +154,15 @@ class LedMatrix(collections.abc.Sequence):
                     neopixel_index = neopixel_col_index + matrix_row_index
                 # this strip's orientation is switched bottom-to-top
                 else:
-                    neopixel_index = (neopixel_col_index - (self.height - 1)) + matrix_row_index
+                    neopixel_index = neopixel_col_index + ((self.height - 1) - matrix_row_index)
             # the first pixel is in the top-right corner of the board
             else:
                 # this strip is oriented top-to-bottom
                 if not neopixel_col_alt:
-                    neopixel_index = neopixel_col_index + (self.height - (matrix_row_index - 1))
+                    neopixel_index = neopixel_col_index + matrix_row_index
                 # this strip's orientation is switched bottom-to-top
                 else:
-                    neopixel_index = neopixel_col_index + matrix_row_index
+                    neopixel_index = neopixel_col_index + ((self.height - 1) - matrix_row_index)
 
         # set value on pixel
         if value.white is None:
@@ -223,19 +230,22 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rows', '-r', type=int, default=4)
     parser.add_argument('--cols', '-c', type=int, default=4)
-    parser.add_argument('--turns', '-t', type=int, default=20)
+    parser.add_argument('--delay', '-d', type=float, default=0.2)
+    parser.add_argument('--orientation', '-o', default='ALTERNATING_COLUMN')
+    parser.add_argument('--start', '-s', default='NORTHEAST')
     args = parser.parse_args()
 
-    matrix = LedMatrix()
-    for round_index in range(args.turns):
-        matrix.fill(color.RED)
-        matrix.render()
-        matrix.fill(color.GREEN)
-        matrix.render()
-        matrix.fill(color.BLUE)
-        matrix.render()
-        matrix.fill(color.WHITE)
-        matrix.render()
-        matrix.fill(color.BLACK)
-        matrix.render()
+    matrix = LedMatrix(
+        num_rows=args.rows,
+        num_cols=args.cols,
+        origin=getattr(MATRIX_ORIGIN, args.start),
+        orientation=getattr(MATRIX_ORIENTATION, args.orientation),
+    )
+
+    for row_index in range(matrix.height):
+        for col_index in range(matrix.width):
+            matrix[row_index][col_index] = color.RED
+            matrix.render()
+            time.sleep(args.delay)
+
     matrix.deinit()
