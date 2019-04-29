@@ -85,7 +85,7 @@ if __name__ == '__main__':
         num_rows=args.cols,
         num_cols=args.rows,
         font_expand_px=args.zoom,
-        font_shift_down_px=args.shift,
+        font_shift_down_px=args.yshift,
         delay_seconds=args.delay,
         auto_write=False,
     )
