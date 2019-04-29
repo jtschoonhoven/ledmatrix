@@ -38,9 +38,10 @@ class LedMatrix(collections.abc.Sequence):
         num_cols=DEFAULT_NUM_COLS,  # type: int
         brightness=1,  # type: float
         auto_write=False,  # type: bool
-        pixel_order=color.RGB,  # type: color.ColorOrder
+        pixel_order=color.GRB,  # type: color.ColorOrder
         origin=MATRIX_ORIGIN.NORTHEAST,  # type: MATRIX_ORIGIN
         orientation=MATRIX_ORIENTATION.ROW,  # type: MATRIX_ORIENTATION
+        default_color=color.RED,  # type: color.Color
     ) -> None:
         num_pixels = num_rows * num_cols
         gpio_pin = getattr(board, gpio_pin_name)
@@ -48,6 +49,7 @@ class LedMatrix(collections.abc.Sequence):
         self.height = num_rows
         self.origin = origin
         self.orientation = orientation
+        self.default_color = default_color
 
         # coerce pixel_order to plain tuple
         if pixel_order.white is None:
@@ -230,6 +232,7 @@ if __name__ == '__main__':
     parser.add_argument('--delay', '-d', type=float, default=0.2)
     parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
+    parser.add_argument('--color', '-co', type=str, default='RED')
     args = parser.parse_args()
 
     matrix = LedMatrix(
@@ -237,11 +240,12 @@ if __name__ == '__main__':
         num_cols=args.cols,
         origin=getattr(MATRIX_ORIGIN, args.start),
         orientation=getattr(MATRIX_ORIENTATION, args.orient),
+        default_color=getattr(color, args.color),
     )
 
     for row_index in range(matrix.height):
         for col_index in range(matrix.width):
-            matrix[row_index][col_index] = color.RED
+            matrix[row_index][col_index] = matrix.default_color
             matrix.render()
             time.sleep(args.delay)
 

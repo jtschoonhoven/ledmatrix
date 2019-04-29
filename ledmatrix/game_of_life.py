@@ -17,11 +17,9 @@ class GameOfLife(matrix.LedMatrix):
     def __init__(
         self,
         *args,  # type: Any
-        color=color.RED,  # type: color.Color
         **kwargs  # type: Any
     ):  # type: (...) -> None
         super().__init__(*args, **kwargs)
-        self._color = color
         self._living_cell_coordinates = set()  # type: Set[CellCoords]
 
         # initialize to random state
@@ -30,7 +28,7 @@ class GameOfLife(matrix.LedMatrix):
                 if random.random() > INITIAL_POPULATION_DENSITY:
                     cell = CellCoords(row_index, col_index)
                     self._living_cell_coordinates.add(cell)
-                    self[row_index][col_index] = color
+                    self[row_index][col_index] = self.default_color
 
     def next(self):  # type: () -> None
         """Determine which cells live and die and apply to matrix."""
@@ -52,7 +50,7 @@ class GameOfLife(matrix.LedMatrix):
             for col_index in range(self.width):
                 cell = CellCoords(row_index, col_index)
                 if self._is_alive(cell):
-                    self[row_index][col_index] = self._color
+                    self[row_index][col_index] = self.default_color
                 else:
                     self[row_index][col_index] = color.BLACK
 
@@ -122,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--delay', '-d', type=float, default=0.2)
     parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
+    parser.add_argument('--color', '-co', type=str, default='RED')
     args = parser.parse_args()
 
     game = GameOfLife(
@@ -129,6 +128,7 @@ if __name__ == '__main__':
         num_cols=args.cols,
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
+        default_color=getattr(color, args.color),
     )
     for round_index in range(args.turns):
         time.sleep(args.delay)

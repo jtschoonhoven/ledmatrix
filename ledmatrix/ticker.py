@@ -18,7 +18,7 @@ class Ticker(matrix.LedMatrix):
         self._delay_seconds = delay_seconds
         super().__init__(*args, **kwargs)
 
-    def write_static(self, text, value=color.RED):  # type: (str, color.Color) -> None
+    def write_static(self, text, value=None):  # type: (str, color.Color) -> None
         text_matrix = font.text_to_matrix(
             text,
             font_height_px=self.height,
@@ -32,13 +32,13 @@ class Ticker(matrix.LedMatrix):
                 if col_index < len(text_matrix[row_index]):
                     pixel_on = text_matrix[row_index][col_index]
                     if pixel_on:
-                        self[row_index][col_index] = value
+                        self[row_index][col_index] = value or self.default_color
                     else:
                         self[row_index][col_index] = color.BLACK
 
         self.render()
 
-    def write_scroll(self, text, value=color.RED):  # type: (str, color.Color) -> None
+    def write_scroll(self, text, value=None):  # type: (str, color.Color) -> None
         text_matrix = font.text_to_matrix(
             text,
             font_height_px=self.height,
@@ -55,7 +55,7 @@ class Ticker(matrix.LedMatrix):
                 except IndexError:
                     pixel_on = False
                 if pixel_on:
-                    next_col.append(value)
+                    next_col.append(value or self.default_color)
                 else:
                     next_col.append(color.BLACK)
             self.shift_left(next_col)
@@ -72,8 +72,9 @@ if __name__ == '__main__':
     parser.add_argument('--zoom', '-z', type=int, default=0)
     parser.add_argument('--yshift', '-y', type=int, default=0)
     parser.add_argument('--delay', '-d', type=float, default=0.02)
-    parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
+    parser.add_argument('--orient', '-o', type=str, default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
+    parser.add_argument('--color', '-co', type=str, default='RED')
     args = parser.parse_args()
 
     ticker = Ticker(
@@ -85,6 +86,7 @@ if __name__ == '__main__':
         font_shift_down_px=args.yshift,
         delay_seconds=args.delay,
         auto_write=False,
+        default_color=getattr(color, args.color),
     )
     ticker.write_scroll(args.text)
     ticker.deinit()
