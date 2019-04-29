@@ -36,7 +36,7 @@ class ColorCycle(matrix.LedMatrix):
                     red_value = red_value + 1 if red_value <= 255 else 255
                     green_value = green_value - 1 if green_value > 0 else 0
 
-                new_pixel = color.Color(red_value, green_value, blue_value, 0)
+                new_pixel = color.Color(red_value, green_value, blue_value, None)
                 self[row_index][col_index] = new_pixel
 
 
