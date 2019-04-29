@@ -1,4 +1,3 @@
-import os
 import time
 
 from ledmatrix import color, font, matrix
@@ -61,9 +60,7 @@ class Ticker(matrix.LedMatrix):
                     next_col.append(color.BLACK)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
-            # self.render()
-            os.system('clear')
-            print(self)
+            self.render()
 
 
 if __name__ == '__main__':
