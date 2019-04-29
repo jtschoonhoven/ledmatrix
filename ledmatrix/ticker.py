@@ -69,8 +69,8 @@ if __name__ == '__main__':
     parser.add_argument('--text', '-t', type=str, default='Hello, World!')
     parser.add_argument('--rows', '-r', type=int, default=7)
     parser.add_argument('--cols', '-c', type=int, default=4)
-    parser.add_argument('--zoom', '-z', type=int, default=2)
-    parser.add_argument('--yshift', '-y', type=int, default=-1)
+    parser.add_argument('--zoom', '-z', type=int, default=0)
+    parser.add_argument('--yshift', '-y', type=int, default=0)
     parser.add_argument('--delay', '-d', type=float, default=0.02)
     parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
@@ -79,8 +79,8 @@ if __name__ == '__main__':
     ticker = Ticker(
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
-        num_rows=args.cols,
-        num_cols=args.rows,
+        num_rows=args.rows,
+        num_cols=args.cols,
         font_expand_px=args.zoom,
         font_shift_down_px=args.yshift,
         delay_seconds=args.delay,
