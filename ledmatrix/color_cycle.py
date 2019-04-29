@@ -16,9 +16,9 @@ class ColorCycle(matrix.LedMatrix):
         for row_index in range(self.height):
             for col_index in range(self.width):
                 pixel = self[row_index][col_index]
-                for y_offset in range(row_index):
+                for y_offset in range(row_index * 2):
                     pixel = self._next_pixel_value(pixel)
-                for x_offset in range(col_index):
+                for x_offset in range(col_index * 2):
                     pixel = self._next_pixel_value(pixel)
                 self[row_index][col_index] = pixel
 
@@ -38,10 +38,10 @@ class ColorCycle(matrix.LedMatrix):
         if red_value == 255:
             green_value = green_value + 1 if green_value <= 255 else 255
             blue_value = blue_value - 1 if blue_value > 0 else 0
-        elif green_value == 255:
+        if green_value == 255:
             blue_value = blue_value + 1 if blue_value <= 255 else 255
             red_value = red_value - 1 if red_value > 0 else 0
-        elif blue_value == 255:
+        if blue_value == 255:
             red_value = red_value + 1 if red_value <= 255 else 255
             green_value = green_value - 1 if green_value > 0 else 0
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rows', '-r', type=int, default=4)
     parser.add_argument('--cols', '-c', type=int, default=4)
-    parser.add_argument('--delay', '-d', type=float, default=0.0001)
+    parser.add_argument('--delay', '-d', type=float, default=0)
     parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
     parser.add_argument('--color', '-co', type=str, default='RED')
