@@ -128,7 +128,7 @@ if __name__ == '__main__':
         num_rows=args.rows,
         num_cols=args.cols,
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
-        orientation=getattr(matrix.MATRIX_ORIENTATION, args.orientation),
+        orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
     )
     for round_index in range(args.turns):
         time.sleep(args.delay)

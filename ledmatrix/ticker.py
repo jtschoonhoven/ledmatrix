@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     ticker = Ticker(
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
-        orientation=getattr(matrix.MATRIX_ORIENTATION, args.orientation),
+        orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
         num_rows=args.cols,
         num_cols=args.rows,
         font_expand_px=args.zoom,
