@@ -8,7 +8,7 @@ log = getLogger(__name__)
 
 class ColorCycle(matrix.LedMatrix):
 
-    def __init__(self, *args, **kwargs):  # type: (*Any, **Any) -> None
+    def __init__(self, *args, gradient_multiplier=1, **kwargs):  # type: (*Any, **Any) -> None
         super().__init__(*args, **kwargs)
 
         # fill with slight gradient
@@ -16,9 +16,9 @@ class ColorCycle(matrix.LedMatrix):
         for row_index in range(self.height):
             for col_index in range(self.width):
                 pixel = self[row_index][col_index]
-                for y_offset in range(row_index * 2):
+                for y_offset in range(row_index * gradient_multiplier):
                     pixel = self._next_pixel_value(pixel)
-                for x_offset in range(col_index * 2):
+                for x_offset in range(col_index * gradient_multiplier):
                     pixel = self._next_pixel_value(pixel)
                 self[row_index][col_index] = pixel
 
@@ -58,6 +58,7 @@ if __name__ == '__main__':
     parser.add_argument('--start', '-s', default='NORTHEAST')
     parser.add_argument('--color', '-co', type=str, default='RED')
     parser.add_argument('--turns', '-t', type=int, default=1024)
+    parser.add_argument('--gradient', '-g', type=int, default=1)
     args = parser.parse_args()
 
     cycler = ColorCycle(
@@ -67,6 +68,7 @@ if __name__ == '__main__':
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
         default_color=getattr(color, args.color),
+        gradient_multiplier=args.gradient,
     )
 
     for cycle_index in range(args.turns):
