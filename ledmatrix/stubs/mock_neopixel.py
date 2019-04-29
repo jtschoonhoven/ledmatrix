@@ -2,8 +2,7 @@ import collections
 import os
 
 from ledmatrix import color
-from ledmatrix.color import Color, ColorOrder, GRB, GRBW, RGB, RGBW  # noqa: F401
-from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
+from ledmatrix.color import Color, GRB, GRBW, RGB
 
 
 class MockNeoPixel(collections.abc.Sequence):

@@ -1,5 +1,3 @@
-from typing import Any
-
 from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
 
 SCREEN_WIDTH_PX = 640
