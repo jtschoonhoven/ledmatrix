@@ -120,9 +120,16 @@ if __name__ == '__main__':
     parser.add_argument('--cols', '-c', type=int, default=4)
     parser.add_argument('--turns', '-t', type=int, default=20)
     parser.add_argument('--delay', '-d', type=float, default=0.2)
+    parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
+    parser.add_argument('--start', '-s', default='NORTHEAST')
     args = parser.parse_args()
 
-    game = GameOfLife(num_rows=args.rows, num_cols=args.cols)
+    game = GameOfLife(
+        num_rows=args.rows,
+        num_cols=args.cols,
+        origin=getattr(matrix.MATRIX_ORIGIN, args.start),
+        orientation=getattr(matrix.MATRIX_ORIENTATION, args.orientation),
+    )
     for round_index in range(args.turns):
         time.sleep(args.delay)
         game.render()

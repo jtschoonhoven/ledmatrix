@@ -166,10 +166,7 @@ class LedMatrix(collections.abc.Sequence):
 
         # set value on pixel
         if value.white is None:
-            try:
-                self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
-            except:
-                import pdb; pdb.set_trace()
+            self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
         else:
             self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
 

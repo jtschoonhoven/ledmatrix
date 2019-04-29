@@ -37,8 +37,7 @@ class Ticker(matrix.LedMatrix):
                     else:
                         self[row_index][col_index] = color.BLACK
 
-        os.system('clear')  # TODO: rm
-        print(self)  # TODO: change to self.render()
+        self.render()
 
     def write_scroll(self, text, value=color.RED):  # type: (str, color.Color) -> None
         text_matrix = font.text_to_matrix(
@@ -62,7 +61,9 @@ class Ticker(matrix.LedMatrix):
                     next_col.append(color.BLACK)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
-            self.render()
+            # self.render()
+            os.system('clear')
+            print(self)
 
 
 if __name__ == '__main__':
@@ -71,14 +72,16 @@ if __name__ == '__main__':
     parser.add_argument('--text', '-t', type=str, default='Hello, World!')
     parser.add_argument('--rows', '-r', type=int, default=7)
     parser.add_argument('--cols', '-c', type=int, default=4)
-    parser.add_argument('--zoom', '-z', type=int, default=3)
+    parser.add_argument('--zoom', '-z', type=int, default=2)
     parser.add_argument('--shift', '-s', type=int, default=-1)
     parser.add_argument('--delay', '-d', type=float, default=0.02)
+    parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
+    parser.add_argument('--start', '-s', default='NORTHEAST')
     args = parser.parse_args()
 
     ticker = Ticker(
-        origin=matrix.MATRIX_ORIGIN.NORTHEAST,
-        orientation=matrix.MATRIX_ORIENTATION.COLUMN,
+        origin=getattr(matrix.MATRIX_ORIGIN, args.start),
+        orientation=getattr(matrix.MATRIX_ORIENTATION, args.orientation),
         num_rows=args.cols,
         num_cols=args.rows,
         font_expand_px=args.zoom,
