@@ -1,9 +1,6 @@
 import time
-from logging import getLogger
 
 from ledmatrix import color, matrix
-
-log = getLogger(__name__)
 
 
 class ColorCycle(matrix.LedMatrix):
@@ -47,6 +44,7 @@ class ColorCycle(matrix.LedMatrix):
 
         next_pixel = color.Color(red_value, green_value, blue_value, None)
         return next_pixel
+
 
 if __name__ == '__main__':
     import argparse
