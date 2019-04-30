@@ -1,6 +1,8 @@
 import collections
+import os
 import time
 from enum import Enum
+from typing import List
 
 try:
     import board
@@ -11,6 +13,7 @@ except (NotImplementedError, ModuleNotFoundError):
     board = MockBoard()
 
 from ledmatrix import color
+from ledmatrix.stubs import mock_neopixel
 
 DEFAULT_GPIO_PIN_NAME = 'D18'
 DEFAULT_NUM_ROWS = 7
@@ -50,6 +53,7 @@ class LedMatrix(collections.abc.Sequence):
         self.origin = origin
         self.orientation = orientation
         self.default_color = default_color
+        self.done = False
 
         # coerce pixel_order to plain tuple
         if pixel_order.white is None:
@@ -73,7 +77,11 @@ class LedMatrix(collections.abc.Sequence):
 
     def render(self):  # type: () -> None
         """Render current state of matrix to the neopixel (only useful when auto_write is False)."""
-        self._neopixel.show()
+        if isinstance(self._neopixel, mock_neopixel.MockNeoPixel):
+            os.system('clear')
+            print(self)
+        else:
+            self._neopixel.show()
 
     def fill(self, value):  # type: (color.Color) -> None
         for row in self._matrix:
@@ -171,6 +179,12 @@ class LedMatrix(collections.abc.Sequence):
             self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
         else:
             self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
+
+        # print if using a mock neopixel and auto_write is True
+        if isinstance(self._neopixel, mock_neopixel.MockNeoPixel):
+            if self._neopixel.auto_write:
+                os.system('clear')
+                print(self)
 
     def __repr__(self):  # type: () -> str
         buf = ''

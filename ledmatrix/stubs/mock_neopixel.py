@@ -2,7 +2,8 @@ import collections
 import os
 
 from ledmatrix import color
-from ledmatrix.color import Color, GRB, GRBW, RGB
+from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
+from ledmatrix.color import Color, ColorOrder, GRB, GRBW, RGB
 
 
 class MockNeoPixel(collections.abc.Sequence):
@@ -45,15 +46,10 @@ class MockNeoPixel(collections.abc.Sequence):
         return self._pixels[index]
 
     def __setitem__(self, index, color):  # type: (int, Color) -> None
-        """Set the RGB value for a given pixel.
-
-        Prints the entire pixel matrix if auto_write=True.
-        """
+        """Set the RGB value for a given pixel."""
         if self.color_order in (GRB, GRBW):
             color = self._rgb_to_grb(color)
         self._pixels[index] = color
-        if self.auto_write:
-            print(self)
 
     def fill(self, value):  # type: (Color) -> None
         """Set the RGB value for all pixels in this row.
@@ -77,7 +73,6 @@ class MockNeoPixel(collections.abc.Sequence):
         """Blank out the NeoPixels and release the pin."""
         for pixel_index in range(len(self)):
             self[pixel_index] = color.BLACK
-        self.show()
 
     def _rgb_to_grb(self, color: Color):  # type: (Color) -> Color
         """Translate a Color object from RGB to GRB."""

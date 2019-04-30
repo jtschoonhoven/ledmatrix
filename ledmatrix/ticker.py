@@ -1,4 +1,5 @@
 import time
+from typing import Any
 
 from ledmatrix import color, font, matrix
 
@@ -35,7 +36,6 @@ class Ticker(matrix.LedMatrix):
                         self[row_index][col_index] = value or self.default_color
                     else:
                         self[row_index][col_index] = color.BLACK
-
         self.render()
 
     def write_scroll(self, text, value=None):  # type: (str, color.Color) -> None

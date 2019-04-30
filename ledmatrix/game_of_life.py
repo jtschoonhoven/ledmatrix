@@ -1,6 +1,6 @@
 import time
 import random
-from typing import NamedTuple
+from typing import Any, NamedTuple, Set
 
 from ledmatrix import color, matrix
 
@@ -124,6 +124,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     game = GameOfLife(
+        auto_write=False,
         num_rows=args.rows,
         num_cols=args.cols,
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),

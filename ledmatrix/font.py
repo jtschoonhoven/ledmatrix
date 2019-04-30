@@ -1,6 +1,6 @@
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
+from typing import Dict, List
+
+from PIL import Image, ImageDraw, ImageFont
 
 DEFAULT_FONT_HEIGHT_PX = 7
 DEFAULT_FONT_PATH = 'ledmatrix/fonts/zig.ttf'
@@ -65,7 +65,7 @@ def text_to_matrix(
     font_shift_down_px=-1,   # type: int
 ):  # type: (...) -> List[List[bool]]
     char_matrices = []  # type:  List[List[List[bool]]]
-    text_matrix = []  # type:  List[List[bool]] =
+    text_matrix = []  # type:  List[List[bool]]
 
     # return from cache if available
     # NOTE: assumes we're only ever using a single font height
