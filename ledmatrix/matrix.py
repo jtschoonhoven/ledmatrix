@@ -45,7 +45,7 @@ class LedMatrix(collections.abc.Sequence):
         origin=MATRIX_ORIGIN.NORTHEAST,  # type: MATRIX_ORIGIN
         orientation=MATRIX_ORIENTATION.ROW,  # type: MATRIX_ORIENTATION
         default_color=color.RED,  # type: color.Color
-    ) -> None:
+    ):  # type: (...) -> None
         num_pixels = num_rows * num_cols
         gpio_pin = getattr(board, gpio_pin_name)
         self.width = num_cols
