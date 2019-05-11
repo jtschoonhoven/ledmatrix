@@ -190,7 +190,10 @@ class LedMatrix(collections.abc.Sequence):
         buf = ''
         for row in self._matrix:
             for pixel in row:
-                buf += pixel.print()
+                if isinstance(pixel, color.Color):
+                    buf += pixel.print()
+                else:
+                    pixel = color.Color(pixel)
             buf += '\n'
         return buf
 
