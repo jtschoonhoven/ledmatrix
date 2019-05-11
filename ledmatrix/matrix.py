@@ -7,7 +7,7 @@ from typing import List
 try:
     import board
     from neopixel import NeoPixel
-except (NotImplementedError, ModuleNotFoundError):
+except (NotImplementedError, ImportError):
     from ledmatrix.stubs.mock_board import MockBoard
     from ledmatrix.stubs.mock_neopixel import MockNeoPixel as NeoPixel
     board = MockBoard()
