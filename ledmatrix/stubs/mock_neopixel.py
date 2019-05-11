@@ -32,9 +32,9 @@ class MockNeoPixel(collections.abc.Sequence):
         buf = ''
         for pixel in self._pixels:
             if len(pixel) == 3:
-                buf += color.Color(*pixel, 0).print()
+                buf += color.Color(*pixel, 0).__repr__()
             else:
-                buf += color.Color(*pixel).print()
+                buf += color.Color(*pixel).__repr__()
         buf += '\n'
         return buf
 

@@ -192,7 +192,7 @@ class LedMatrix(collections.abc.Sequence):
             for pixel in row:
                 if not isinstance(pixel, color.Color):
                     pixel = color.Color(pixel)
-                buf += pixel.print()
+                buf += pixel.__repr__()
             buf += '\n'
         return buf
 

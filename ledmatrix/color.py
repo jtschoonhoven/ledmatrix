@@ -27,19 +27,14 @@ _ColorTuple = NamedTuple(
 class Color(_ColorTuple):
     """Container for an RGB color value."""
 
-    def print(self):  # type: () -> str
-        """Return an ANSI-formatted, colored code block."""
-        # TODO: apply ColorOrder
-        return ansicolor('██', fg=(self.red, self.green, self.blue))
-
     def __str__(self):  # type: () -> str
         """Format class instance as a code-friendly string."""
-        return self.print()
+        return self.__repr__()
 
     def __repr__(self):  # type: () -> str
         """Format the class instance as a developer-friendly string representation."""
-        color_block = ansicolor('██', fg=self)
-        return color_block
+        # TODO: apply color order
+        return ansicolor('██', fg=(self.red, self.green, self.blue))
 
 
 RED = Color(255, 0, 0, None)
