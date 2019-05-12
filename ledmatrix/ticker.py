@@ -1,8 +1,9 @@
 """Render scrolling text."""
 import time
-from typing import Any
+from typing import Any, List
 
 from ledmatrix import color, font, matrix
+from ledmatrix.color import Color
 
 
 class Ticker(matrix.LedMatrix):
@@ -26,11 +27,9 @@ class Ticker(matrix.LedMatrix):
         for row_index in range(self.height):
             for col_index in range(self.width):
                 if col_index < len(text_matrix[row_index]):
-                    pixel_on = text_matrix[row_index][col_index]
-                    if pixel_on:
-                        self[row_index][col_index] = value or self.default_color
-                    else:
-                        self[row_index][col_index] = color.BLACK
+                    pixel_brightness = text_matrix[row_index][col_index]
+                    pixel_color = self._eight_bit_value_to_color(pixel_brightness)
+                    self[row_index][col_index] = pixel_color
         self.render()
 
     def write_scroll(self, text, value=None):  # type: (str, color.Color) -> None
@@ -42,16 +41,25 @@ class Ticker(matrix.LedMatrix):
             next_col = []
             for row_index in range(self.height):
                 try:
-                    pixel_on = text_matrix[row_index][index]
+                    pixel_brightness = text_matrix[row_index][index]
+                    pixel_color = self._eight_bit_value_to_color(pixel_brightness)
                 except IndexError:
-                    pixel_on = False
-                if pixel_on:
-                    next_col.append(value or self.default_color)
-                else:
-                    next_col.append(color.BLACK)
+                    pixel_color = color.BLACK
+                next_col.append(pixel_color)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
             self.render()
+
+    def _eight_bit_value_to_color(self, value):  # type: (int) -> color.Color
+        """Convert an 8-bit grayscale value (0-255) to a Color value object in the default color."""
+        rgb_channels = []  # type: List[int]
+        for rgb_channel in self.default_color:
+            if rgb_channel is None:
+                rgb_channels.append(None)
+            else:
+                channel_value = int(rgb_channel * (value / 255))
+                rgb_channels.append(channel_value)
+        return Color(*rgb_channels)
 
 
 if __name__ == '__main__':

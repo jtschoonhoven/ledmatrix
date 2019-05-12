@@ -7,8 +7,10 @@ from PIL import Image, ImageDraw, ImageFont
 
 DEFAULT_FONT_HEIGHT_PX = 7
 DEFAULT_FONT_PATH = 'ledmatrix/fonts/zig.ttf'
-PIL_IMAGE_MODE_BW = '1'  # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
-PIL_COLOR_WHITE = 1
+PIL_IMAGE_MODE_1BIT = '1'  # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
+PIL_IMAGE_MODE_8BIT = 'L'
+PIL_COLOR_MODE_8BIT = 255
+PIL_COLOR_BLACK = 0
 PIL_BITMAP_ORIGIN = (0, 0)
 
 
@@ -29,16 +31,18 @@ class Font:
         self,
         font_path=DEFAULT_FONT_PATH,  # type: str
         font_height_px=DEFAULT_FONT_HEIGHT_PX,  # type: int
+        enable_antialiasing=True,  # type: bool
     ):  # type: (...) -> None
         self.font_path = font_path
         self.font_height_px = font_height_px
-        self._char_cache = {}  # type: Dict[str, List[List[bool]]]
-        self._text_cache = {}  # type: Dict[str, List[List[bool]]]
+        self.enable_antialiasing = enable_antialiasing
+        self._char_cache = {}  # type: Dict[str, List[List[int]]]
+        self._text_cache = {}  # type: Dict[str, List[List[int]]]
         self._font_options = self._get_font_options()
 
-    def text_to_matrix(self, text):  # type: (str) -> List[List[bool]]
+    def text_to_matrix(self, text):  # type: (str) -> List[List[int]]
         """Convert a string to a matrix-friendly 2D array."""
-        char_matrices = []  # type:  List[List[List[bool]]]
+        char_matrices = []  # type:  List[List[List[int]]]
 
         # return from cache if available
         if self._text_cache.get(text):
@@ -58,6 +62,7 @@ class Font:
                 font_height_px=self.font_height_px,
                 font_expand_px=self._font_options.font_expand_px,
                 font_shift_down_px=self._font_options.font_shift_down_px,
+                enable_antialiasing=self.enable_antialiasing,
             )
 
             # add char matrix to cache and append to list of matrices
@@ -69,9 +74,9 @@ class Font:
         self._text_cache[text] = text_matrix
         return text_matrix
 
-    def _join_matrices(self, matrices):  # type: (List[List[List[bool]]]) -> List[List[bool]]
+    def _join_matrices(self, matrices):  # type: (List[List[List[int]]]) -> List[List[int]]
         """Concatenate multiple matrices (a 3D-matrix) into a single matrix (2D)."""
-        joined_matrix = []  # type: List[List[bool]]
+        joined_matrix = []  # type: List[List[int]]
 
         # join character matrices into a single matrix
         for row_index in range(self.font_height_px):
@@ -81,18 +86,63 @@ class Font:
 
         return joined_matrix
 
+    def _char_to_matrix(
+        self,
+        char,  # type: str
+        font_path=DEFAULT_FONT_PATH,  # type: str
+        font_height_px=DEFAULT_FONT_HEIGHT_PX,  # type: int
+        font_expand_px=0,  # type: int
+        font_shift_down_px=0,  # type: int
+        enable_antialiasing=True,  # type: bool
+    ):  # type: (...) -> List[List[int]]
+        """Convert a single character to a 2-D matrix.
+
+        From: stackoverflow.com/questions/36384353/generate-pixel-matrices-from-characters-in-string
+        """
+        if enable_antialiasing:
+            image_mode = PIL_IMAGE_MODE_8BIT
+        else:
+            image_mode = PIL_IMAGE_MODE_1BIT
+
+        # parse the font and write the char to a bitmap
+        font = ImageFont.truetype(font_path, font_height_px + font_expand_px)
+        bitmap_width_px, bitmap_height_px = font.getsize(char)
+        bitmap_size = (bitmap_width_px, bitmap_height_px)
+        image = Image.new(mode=image_mode, size=bitmap_size, color=PIL_COLOR_MODE_8BIT)
+        draw = ImageDraw.Draw(im=image)
+        origin = (PIL_BITMAP_ORIGIN[0], PIL_BITMAP_ORIGIN[1] + font_shift_down_px)
+        draw.text(origin, char, font=font)
+
+        # populate the matrix
+        matrix_rows = []  # type: List[List[int]]
+        for row_index in range(font_height_px):
+            row = []  # type: List[int]
+            for col_index in range(bitmap_width_px):
+                try:
+                    # pixel value is 0 or 1 for BW, 0-255 for grayscale
+                    pixel_value = image.getpixel((col_index, row_index))
+                    # invert value for colored text on dark background
+                    pixel_value = abs(pixel_value - 255)
+                    row.append(pixel_value)
+                except IndexError:
+                    row.append(PIL_COLOR_BLACK)
+
+            matrix_rows.append(row)
+        return matrix_rows
+
     def _get_font_options(self):  # type: () -> FontOptions
         """Get options for fine-tuning the font scaling.
 
-        Most fonts need extra fine-tuning to render properly on a small display.
+        NOTE: this optimizes for ASCII letters and digits: there are other characters
+        (unusual punctuation or non-LATIN1 characters) that may be truncated.
         """
         font_expand_px = 0
         font_shift_down_px = 0
-        test_chars = string.ascii_uppercase + string.digits + string.punctuation
+        test_chars = string.ascii_uppercase + string.digits
 
         # continue tweaking font size until characters are perfectly scaled
         while True:
-            char_matrices = {}  # type: Dict[str, List[List[bool]]]
+            char_matrices = {}  # type: Dict[str, List[List[int]]]
 
             # generate a matrix for each character
             for char in test_chars:
@@ -102,6 +152,7 @@ class Font:
                     font_height_px=self.font_height_px,
                     font_expand_px=font_expand_px,
                     font_shift_down_px=font_shift_down_px,
+                    enable_antialiasing=self.enable_antialiasing,
                 )
                 char_matrices[char] = char_matrix
 
@@ -117,7 +168,7 @@ class Font:
 
             # shift font up if it doesn't reach the top of the matrix
             if not any(first_row):
-                font_shift_down_px -= 0.5
+                font_shift_down_px -= 0.5  # type: ignore
                 continue
 
             # else the font is properly scaled: cache and return the result
@@ -126,40 +177,3 @@ class Font:
                 font_expand_px=font_expand_px,
                 font_shift_down_px=font_shift_down_px,
             )
-
-    def _char_to_matrix(
-        self,
-        char,  # type: str
-        font_path=DEFAULT_FONT_PATH,  # type: str
-        font_height_px=DEFAULT_FONT_HEIGHT_PX,  # type: int
-        font_expand_px=0,  # type: int
-        font_shift_down_px=0,  # type: int
-    ):  # type: (...) -> List[List[bool]]
-        """Convert a single character to a 2-D matrix.
-
-        From: stackoverflow.com/questions/36384353/generate-pixel-matrices-from-characters-in-string
-        """
-        # parse the font and write the char to a bitmap
-        font = ImageFont.truetype(font_path, font_height_px + font_expand_px)
-        bitmap_width_px, bitmap_height_px = font.getsize(char)
-        bitmap_size = (bitmap_width_px, bitmap_height_px)
-        image = Image.new(mode=PIL_IMAGE_MODE_BW, size=bitmap_size, color=PIL_COLOR_WHITE)
-        draw = ImageDraw.Draw(im=image)
-        origin = (PIL_BITMAP_ORIGIN[0], PIL_BITMAP_ORIGIN[1] + font_shift_down_px)
-        draw.text(origin, char, font=font)
-
-        # populate the matrix
-        matrix_rows = []  # type: List[List[bool]]
-        for row_index in range(font_height_px):
-            row = []  # type: List[bool]
-            for col_index in range(bitmap_width_px):
-                try:
-                    if image.getpixel((col_index, row_index)):
-                        row.append(False)
-                    else:
-                        row.append(True)
-                except IndexError:
-                    row.append(False)
-
-            matrix_rows.append(row)
-        return matrix_rows
