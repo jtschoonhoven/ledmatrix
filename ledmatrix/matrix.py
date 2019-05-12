@@ -70,7 +70,7 @@ class LedMatrix(collections.abc.Sequence):
         self.origin = origin
         self.orientation = orientation
         self.default_color = default_color
-        self.done = False
+        self.pixel_order = pixel_order
 
         # coerce pixel_order to plain tuple
         if pixel_order.white is None:
