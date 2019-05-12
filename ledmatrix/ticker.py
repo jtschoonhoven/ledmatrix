@@ -11,24 +11,16 @@ class Ticker(matrix.LedMatrix):
     def __init__(
         self,
         *args,  # type: Any
-        font_expand_px=0,  # type: int
-        font_shift_down_px=0,  # type: int
         delay_seconds=0.01,  # type: float
         **kwargs  # type: Any
     ):  # type: (...) -> None
-        self._font_expand_px = font_expand_px
-        self._font_shift_down_px = font_shift_down_px
-        self._delay_seconds = delay_seconds
         super().__init__(*args, **kwargs)
+        self._delay_seconds = delay_seconds
+        self.font = font.Font(font_height_px=self.height)
 
     def write_static(self, text, value=None):  # type: (str, color.Color) -> None
         """Render static text that does not scroll."""
-        text_matrix = font.text_to_matrix(
-            text,
-            font_height_px=self.height,
-            font_expand_px=self._font_expand_px,
-            font_shift_down_px=self._font_shift_down_px,
-        )
+        text_matrix = self.font.text_to_matrix(text)
 
         # write text matrix to neopixel
         for row_index in range(self.height):
@@ -43,12 +35,7 @@ class Ticker(matrix.LedMatrix):
 
     def write_scroll(self, text, value=None):  # type: (str, color.Color) -> None
         """Render text that scrolls right to left."""
-        text_matrix = font.text_to_matrix(
-            text,
-            font_height_px=self.height,
-            font_expand_px=self._font_expand_px,
-            font_shift_down_px=self._font_shift_down_px,
-        )
+        text_matrix = self.font.text_to_matrix(text)
         text_matrix_length = len(text_matrix[0])
 
         for index in range(self.width + text_matrix_length):
@@ -73,8 +60,6 @@ if __name__ == '__main__':
     parser.add_argument('--text', '-t', type=str, default='Hello, World!')
     parser.add_argument('--rows', '-r', type=int, default=7)
     parser.add_argument('--cols', '-c', type=int, default=4)
-    parser.add_argument('--zoom', '-z', type=int, default=0)
-    parser.add_argument('--yshift', '-y', type=int, default=0)
     parser.add_argument('--delay', '-d', type=float, default=0.02)
     parser.add_argument('--orient', '-o', type=str, default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
@@ -86,11 +71,11 @@ if __name__ == '__main__':
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
         num_rows=args.rows,
         num_cols=args.cols,
-        font_expand_px=args.zoom,
-        font_shift_down_px=args.yshift,
         delay_seconds=args.delay,
         auto_write=False,
         default_color=getattr(color, args.color),
     )
-    ticker.write_scroll(args.text)
-    ticker.deinit()
+    try:
+        ticker.write_scroll(args.text)
+    finally:
+        ticker.deinit()
