@@ -1,3 +1,4 @@
+"""Module for translating text to a pixel matrix in a given font."""
 from typing import Dict, List
 
 from PIL import Image, ImageDraw, ImageFont
@@ -19,7 +20,7 @@ def char_to_matrix(
     font_expand_px=0,  # type: int
     font_shift_down_px=0,  # type: int
 ):  # type: (...) -> List[List[bool]]
-    """Convert a string to a 2-D matrix.
+    """Convert a character to a 2-D matrix.
 
     From: stackoverflow.com/questions/36384353/generate-pixel-matrices-from-characters-in-string
     """
@@ -64,6 +65,7 @@ def text_to_matrix(
     font_expand_px=3,   # type: int
     font_shift_down_px=-1,   # type: int
 ):  # type: (...) -> List[List[bool]]
+    """Convert a string to a 2-D matrix."""
     char_matrices = []  # type:  List[List[List[bool]]]
     text_matrix = []  # type:  List[List[bool]]
 

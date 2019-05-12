@@ -1,3 +1,4 @@
+"""Render scrolling text."""
 import time
 from typing import Any
 
@@ -5,6 +6,7 @@ from ledmatrix import color, font, matrix
 
 
 class Ticker(matrix.LedMatrix):
+    """Render scrolling text."""
 
     def __init__(
         self,
@@ -20,6 +22,7 @@ class Ticker(matrix.LedMatrix):
         super().__init__(*args, **kwargs)
 
     def write_static(self, text, value=None):  # type: (str, color.Color) -> None
+        """Render static text that does not scroll."""
         text_matrix = font.text_to_matrix(
             text,
             font_height_px=self.height,
@@ -39,6 +42,7 @@ class Ticker(matrix.LedMatrix):
         self.render()
 
     def write_scroll(self, text, value=None):  # type: (str, color.Color) -> None
+        """Render text that scrolls right to left."""
         text_matrix = font.text_to_matrix(
             text,
             font_height_px=self.height,

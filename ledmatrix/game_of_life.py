@@ -1,5 +1,6 @@
-import time
+"""Render a Conway's Game of Life."""
 import random
+import time
 from typing import Any, NamedTuple, Set
 
 from ledmatrix import color, matrix
@@ -25,12 +26,12 @@ class GameOfLife(matrix.LedMatrix):
         # initialize to random state
         for row_index in range(self.height):
             for col_index in range(self.width):
-                if random.random() > INITIAL_POPULATION_DENSITY:
+                if random.random() > INITIAL_POPULATION_DENSITY:  # noqa: S311
                     cell = CellCoords(row_index, col_index)
                     self._living_cell_coordinates.add(cell)
                     self[row_index][col_index] = self.default_color
 
-    def next(self):  # type: () -> None
+    def next_state(self):  # type: () -> None
         """Determine which cells live and die and apply to matrix."""
         next_living_cell_coordinates = set()  # type: Set[CellCoords]
 
@@ -55,11 +56,11 @@ class GameOfLife(matrix.LedMatrix):
                     self[row_index][col_index] = color.BLACK
 
     def _is_alive(self, cell):  # type: (CellCoords) -> bool
-        """True if the given cell is alive in the current round."""
+        """Return True if the given cell is alive in the current round."""
         return cell in self._living_cell_coordinates
 
     def _will_live(self, cell):  # type: (CellCoords) -> bool
-        """True if the given cell will survive to the next round."""
+        """Return True if the given cell will survive to the next round."""
         neighbors = self._get_neighbor_coordinates(cell)
         num_living_neighbors = sum(self._is_alive(neighbor) for neighbor in neighbors)
 
@@ -131,8 +132,8 @@ if __name__ == '__main__':
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
         default_color=getattr(color, args.color),
     )
-    for round_index in range(args.turns):
+    for _round_index in range(args.turns):
         time.sleep(args.delay)
         game.render()
-        game.next()
+        game.next_state()
     game.deinit()

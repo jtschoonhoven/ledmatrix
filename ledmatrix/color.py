@@ -3,6 +3,7 @@
 https://pypi.org/project/ansicolors/
 """
 from typing import NamedTuple, Optional
+
 from colors import color as ansicolor
 
 

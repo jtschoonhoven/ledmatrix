@@ -1,19 +1,26 @@
+"""Contains LedMatrix base class for working with a single LED strip as a matrix."""
 import collections
 import os
 import time
 from enum import Enum
+from logging import getLogger
 from typing import List
+
+log = getLogger(__name__)
 
 try:
     import board
     from neopixel import NeoPixel
+# the NeoPixel library can *only* be installed on a Raspberry Pi:
+# fall back to a "mock neopixel" that prints the matrix to STDOUT to allow remote development
 except (NotImplementedError, ImportError):
+    log.warning('neopixel library not found: matrix will be printed to STDOUT')
     from ledmatrix.stubs.mock_board import MockBoard
     from ledmatrix.stubs.mock_neopixel import MockNeoPixel as NeoPixel
     board = MockBoard()
 
-from ledmatrix import color
-from ledmatrix.stubs import mock_neopixel
+from ledmatrix import color  # noqa: E402
+from ledmatrix.stubs import mock_neopixel  # noqa: E402
 
 DEFAULT_GPIO_PIN_NAME = 'D18'
 DEFAULT_NUM_ROWS = 7
@@ -21,11 +28,19 @@ DEFAULT_NUM_COLS = 42
 
 
 class MATRIX_ORIGIN(Enum):
+    """Configures whether the NeoPixel originates in the top-left or right corner of the matrix."""
     NORTHEAST = 'NE'  # type: str
     NORTHWEST = 'NW'  # type: str
 
 
 class MATRIX_ORIENTATION(Enum):
+    """Configures the path that the NeoPixel travels to form the matrix.
+
+    COLUMN:             pixels travel *down* each column, then continue at the top of the next.
+    ROW:                pixels travel *across* each row, then continue at the beginning of the next.
+    ALTERNATING COLUMN: pixels travel *down* the first column, then back *up* the next.
+    ALTERNATING ROW:    pixels travel *across* the first row, then back across the next row down.
+    """
     COLUMN = 'COL'  # type: str
     ROW = 'ROW'  # type: str
     ALTERNATING_COLUMN = 'ALT_COL'  # type: str
@@ -33,6 +48,7 @@ class MATRIX_ORIENTATION(Enum):
 
 
 class LedMatrix(collections.abc.Sequence):
+    """Abstraction over the NeoPixel class for working with a NeoPixel strip as a matrix."""
 
     def __init__(
         self,
@@ -77,17 +93,21 @@ class LedMatrix(collections.abc.Sequence):
 
     def render(self):  # type: () -> None
         """Render current state of matrix to the neopixel (only useful when auto_write is False)."""
+        # print to STDOUT if using a mock
         if isinstance(self._neopixel, mock_neopixel.MockNeoPixel):
-            os.system('clear')
+            os.system('clear')  # noqa: S605 S607
             print(self)
+        # otherwise call the "show" method on the underlying neopixel
         else:
             self._neopixel.show()
 
     def fill(self, value):  # type: (color.Color) -> None
+        """Fill the entire matrix with the given color value."""
         for row in self._matrix:
             row.fill(value)
 
     def shift_left(self, values):  # type: (List[color.Color]) -> None
+        """Shift all current pixel values left one unit."""
         for row_index in range(self.height):
             row = self._matrix[row_index]
             value = values[row_index]
@@ -183,7 +203,7 @@ class LedMatrix(collections.abc.Sequence):
         # print if using a mock neopixel and auto_write is True
         if isinstance(self._neopixel, mock_neopixel.MockNeoPixel):
             if self._neopixel.auto_write:
-                os.system('clear')
+                os.system('clear')  # noqa: S605 S607
                 print(self)
 
     def __repr__(self):  # type: () -> str
@@ -211,12 +231,12 @@ class _LedMatrixRow(collections.abc.Sequence):
         self,
         parent_matrix,  # type: LedMatrix
         parent_matrix_index,  # type: int
-        len,  # type: int
+        length,  # type: int
     ):  # type: (...) -> None
         self._parent_matrix = parent_matrix
         self._parent_matrix_index = parent_matrix_index
         # TODO: use collections.deque for self._row for efficient left-element removal
-        self._row = [color.BLACK for _ in range(len)]
+        self._row = [color.BLACK for _ in range(length)]
 
     def fill(self, value):  # type: (color.Color) -> None
         for pixel_index in range(len(self._row)):

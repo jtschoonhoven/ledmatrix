@@ -11,4 +11,3 @@ pycodestyle==2.5.0
 pyflakes==2.1.1
 rpi_ws281x==4.1.0
 sysv-ipc==1.0.0
-typing==3.6.6

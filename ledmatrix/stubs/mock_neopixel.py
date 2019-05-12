@@ -1,9 +1,10 @@
+"""Drop-in replacement for the Adafruit neopixel library: prints matrix to STDOUT."""
 import collections
 import os
 
 from ledmatrix import color
-from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
 from ledmatrix.color import Color, ColorOrder, GRB, GRBW, RGB
+from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
 
 
 class MockNeoPixel(collections.abc.Sequence):
@@ -58,15 +59,15 @@ class MockNeoPixel(collections.abc.Sequence):
         """
         if self.color_order in (GRB, GRBW):
             value = self._rgb_to_grb(color)
-        for pixel_index, pixel in self._pixels:
+        for pixel_index, _ in self._pixels:
             self._pixels[pixel_index] = value
         if self.auto_write:
             print(self)
 
     def show(self):  # type: () -> None
-        """Prints the entire pixel matrix if auto_write=False."""
+        """Print the entire pixel matrix if auto_write=False."""
         if not self.auto_write:
-            os.system('clear')
+            os.system('clear')  # noqa: S605 S607
             print(self)
 
     def deinit(self):  # type: () -> None

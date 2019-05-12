@@ -1,3 +1,6 @@
+"""Mock the board module from the Adafruit neopixel library."""
+from typing import Any
+
 from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
 
 SCREEN_WIDTH_PX = 640
@@ -5,6 +8,7 @@ SCREEN_HEIGHT_PX = 480
 
 
 class MockBoard:
+    """Mock the board module from the Adafruit neopixel library."""
 
     def __init__(self) -> None:
         pass

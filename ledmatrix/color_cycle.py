@@ -1,3 +1,4 @@
+"""Cycle each pixel through all possible RGB values."""
 import time
 from typing import Any
 
@@ -5,6 +6,7 @@ from ledmatrix import color, matrix
 
 
 class ColorCycle(matrix.LedMatrix):
+    """Cycle each pixel through all possible RGB values."""
 
     def __init__(self, *args, gradient_multiplier=1, **kwargs):  # type: (*Any, **Any) -> None
         super().__init__(*args, **kwargs)
@@ -14,13 +16,14 @@ class ColorCycle(matrix.LedMatrix):
         for row_index in range(self.height):
             for col_index in range(self.width):
                 pixel = self[row_index][col_index]
-                for y_offset in range(row_index * gradient_multiplier):
+                for _ in range(row_index * gradient_multiplier):
                     pixel = self._next_pixel_value(pixel)
-                for x_offset in range(col_index * gradient_multiplier):
+                for _ in range(col_index * gradient_multiplier):
                     pixel = self._next_pixel_value(pixel)
                 self[row_index][col_index] = pixel
 
-    def next(self):  # type: () -> None
+    def next_state(self):  # type: () -> None
+        """Update each pixel to the next RGB value."""
         for row_index in range(self.height):
             for col_index in range(self.width):
                 pixel = self[row_index][col_index]
@@ -29,6 +32,7 @@ class ColorCycle(matrix.LedMatrix):
 
     @staticmethod
     def _next_pixel_value(pixel):  # type: (color.Color) -> color.Color
+        """Return the next pixel value in the cycle."""
         red_value = pixel[0]
         green_value = pixel[1]
         blue_value = pixel[2]
@@ -70,8 +74,8 @@ if __name__ == '__main__':
         gradient_multiplier=args.gradient,
     )
 
-    for cycle_index in range(args.turns):
-        cycler.next()
+    for _cycle_index in range(args.turns):
+        cycler.next_state()
         cycler.render()
         time.sleep(args.delay)
 
