@@ -2,7 +2,9 @@
 import time
 from typing import Any
 
-from ledmatrix import color, matrix
+from ledmatrix import matrix
+from ledmatrix.utilities import colors
+from ledmatrix.utilities.colors import Color
 
 
 class ColorCycle(matrix.LedMatrix):
@@ -31,7 +33,7 @@ class ColorCycle(matrix.LedMatrix):
                 self[row_index][col_index] = next_pixel
 
     @staticmethod
-    def _next_pixel_value(pixel):  # type: (color.Color) -> color.Color
+    def _next_pixel_value(pixel):  # type: (Color) -> Color
         """Return the next pixel value in the cycle."""
         red_value = pixel[0]
         green_value = pixel[1]
@@ -47,7 +49,7 @@ class ColorCycle(matrix.LedMatrix):
             red_value = red_value + 1 if red_value <= 255 else 255
             green_value = green_value - 1 if green_value > 0 else 0
 
-        next_pixel = color.Color(red_value, green_value, blue_value, None)
+        next_pixel = Color(red_value, green_value, blue_value, None)
         return next_pixel
 
 
@@ -70,13 +72,14 @@ if __name__ == '__main__':
         num_cols=args.cols,
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
-        default_color=getattr(color, args.color),
+        default_color=getattr(colors, args.color),
         gradient_multiplier=args.gradient,
     )
 
-    for _cycle_index in range(args.turns):
-        cycler.next_state()
-        cycler.render()
-        time.sleep(args.delay)
-
-    cycler.deinit()
+    try:
+        for _cycle_index in range(args.turns):
+            cycler.next_state()
+            cycler.render()
+            time.sleep(args.delay)
+    finally:
+        cycler.deinit()

@@ -2,8 +2,9 @@
 import time
 from typing import Any, List
 
-from ledmatrix import color, font, matrix
-from ledmatrix.color import Color
+from ledmatrix import matrix
+from ledmatrix.utilities.colors import BLACK, Color
+from ledmatrix.utilities import colors, font
 
 
 class Ticker(matrix.LedMatrix):
@@ -19,7 +20,7 @@ class Ticker(matrix.LedMatrix):
         self._delay_seconds = delay_seconds
         self.font = font.Font(font_height_px=self.height)
 
-    def write_static(self, text, value=None):  # type: (str, color.Color) -> None
+    def write_static(self, text, value=None):  # type: (str, Color) -> None
         """Render static text that does not scroll."""
         text_matrix = self.font.text_to_matrix(text)
 
@@ -32,7 +33,7 @@ class Ticker(matrix.LedMatrix):
                     self[row_index][col_index] = pixel_color
         self.render()
 
-    def write_scroll(self, text, value=None):  # type: (str, color.Color) -> None
+    def write_scroll(self, text, value=None):  # type: (str, Color) -> None
         """Render text that scrolls right to left."""
         text_matrix = self.font.text_to_matrix(text)
         text_matrix_length = len(text_matrix[0])
@@ -44,13 +45,13 @@ class Ticker(matrix.LedMatrix):
                     pixel_brightness = text_matrix[row_index][index]
                     pixel_color = self._eight_bit_value_to_color(pixel_brightness)
                 except IndexError:
-                    pixel_color = color.BLACK
+                    pixel_color = BLACK
                 next_col.append(pixel_color)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
             self.render()
 
-    def _eight_bit_value_to_color(self, value):  # type: (int) -> color.Color
+    def _eight_bit_value_to_color(self, value):  # type: (int) -> Color
         """Convert an 8-bit grayscale value (0-255) to a Color value object in the default color."""
         rgb_channels = []  # type: List[int]
         for rgb_channel in self.default_color:
@@ -81,7 +82,7 @@ if __name__ == '__main__':
         num_cols=args.cols,
         delay_seconds=args.delay,
         auto_write=False,
-        default_color=getattr(color, args.color),
+        default_color=getattr(colors, args.color),
     )
     try:
         ticker.write_scroll(args.text)

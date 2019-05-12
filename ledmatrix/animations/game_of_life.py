@@ -3,7 +3,9 @@ import random
 import time
 from typing import Any, NamedTuple, Set
 
-from ledmatrix import color, matrix
+from ledmatrix import matrix
+from ledmatrix.utilities import colors
+from ledmatrix.utilities.colors import BLACK
 
 INITIAL_POPULATION_DENSITY = 0.7  # type: float
 
@@ -53,7 +55,7 @@ class GameOfLife(matrix.LedMatrix):
                 if self._is_alive(cell):
                     self[row_index][col_index] = self.default_color
                 else:
-                    self[row_index][col_index] = color.BLACK
+                    self[row_index][col_index] = BLACK
 
     def _is_alive(self, cell):  # type: (CellCoords) -> bool
         """Return True if the given cell is alive in the current round."""
@@ -130,10 +132,12 @@ if __name__ == '__main__':
         num_cols=args.cols,
         origin=getattr(matrix.MATRIX_ORIGIN, args.start),
         orientation=getattr(matrix.MATRIX_ORIENTATION, args.orient),
-        default_color=getattr(color, args.color),
+        default_color=getattr(colors, args.color),
     )
-    for _round_index in range(args.turns):
-        time.sleep(args.delay)
-        game.render()
-        game.next_state()
-    game.deinit()
+    try:
+        for _ in range(args.turns):
+            time.sleep(args.delay)
+            game.render()
+            game.next_state()
+    finally:
+        game.deinit()

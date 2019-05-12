@@ -2,9 +2,8 @@
 import collections
 import os
 
-from ledmatrix import color
-from ledmatrix.color import Color, ColorOrder, GRB, GRBW, RGB
 from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
+from ledmatrix.utilities.colors import BLACK, Color, ColorOrder, GRB, GRBW, RGB
 
 
 class MockNeoPixel(collections.abc.Sequence):
@@ -27,15 +26,15 @@ class MockNeoPixel(collections.abc.Sequence):
         self.color_order = pixel_order
 
         # initialize pixels
-        self._pixels = [color.BLACK for pixel in range(pixel_width)]
+        self._pixels = [BLACK for pixel in range(pixel_width)]
 
     def __repr__(self):  # type: () -> str
         buf = ''
         for pixel in self._pixels:
             if len(pixel) == 3:
-                buf += color.Color(*pixel, 0).__repr__()
+                buf += Color(*pixel, 0).__repr__()
             else:
-                buf += color.Color(*pixel).__repr__()
+                buf += Color(*pixel).__repr__()
         buf += '\n'
         return buf
 
@@ -52,15 +51,15 @@ class MockNeoPixel(collections.abc.Sequence):
             color = self._rgb_to_grb(color)
         self._pixels[index] = color
 
-    def fill(self, value):  # type: (Color) -> None
+    def fill(self, color):  # type: (Color) -> None
         """Set the RGB value for all pixels in this row.
 
         Prints the entire pixel matrix if auto_write=True.
         """
         if self.color_order in (GRB, GRBW):
-            value = self._rgb_to_grb(color)
+            color = self._rgb_to_grb(color)
         for pixel_index, _ in self._pixels:
-            self._pixels[pixel_index] = value
+            self._pixels[pixel_index] = color
         if self.auto_write:
             print(self)
 
@@ -73,7 +72,7 @@ class MockNeoPixel(collections.abc.Sequence):
     def deinit(self):  # type: () -> None
         """Blank out the NeoPixels and release the pin."""
         for pixel_index in range(len(self)):
-            self[pixel_index] = color.BLACK
+            self[pixel_index] = BLACK
 
     def _rgb_to_grb(self, color: Color):  # type: (Color) -> Color
         """Translate a Color object from RGB to GRB."""

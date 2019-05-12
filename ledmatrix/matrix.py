@@ -19,8 +19,9 @@ except (NotImplementedError, ImportError):
     from ledmatrix.stubs.mock_neopixel import MockNeoPixel as NeoPixel
     board = MockBoard()
 
-from ledmatrix import color  # noqa: E402
 from ledmatrix.stubs import mock_neopixel  # noqa: E402
+from ledmatrix.utilities import colors  # noqa: E402
+from ledmatrix.utilities.colors import BLACK, Color, ColorOrder, GRB, RED  # noqa: E402
 
 DEFAULT_GPIO_PIN_NAME = 'D18'
 DEFAULT_NUM_ROWS = 7
@@ -57,10 +58,10 @@ class LedMatrix(collections.abc.Sequence):
         num_cols=DEFAULT_NUM_COLS,  # type: int
         brightness=1,  # type: float
         auto_write=False,  # type: bool
-        pixel_order=color.GRB,  # type: color.ColorOrder
+        pixel_order=GRB,  # type: ColorOrder
         origin=MATRIX_ORIGIN.NORTHEAST,  # type: MATRIX_ORIGIN
         orientation=MATRIX_ORIENTATION.ROW,  # type: MATRIX_ORIENTATION
-        default_color=color.RED,  # type: color.Color
+        default_color=RED,  # type: Color
     ):  # type: (...) -> None
         num_pixels = num_rows * num_cols
         gpio_pin = getattr(board, gpio_pin_name)
@@ -87,7 +88,7 @@ class LedMatrix(collections.abc.Sequence):
         )
 
         # initialize each row in matrix
-        self._matrix = []  # type: List[List[color.Color]]
+        self._matrix = []  # type: List[List[Color]]
         for row_index in range(num_rows):
             self._matrix.append(_LedMatrixRow(self, row_index, num_cols))
 
@@ -101,12 +102,12 @@ class LedMatrix(collections.abc.Sequence):
         else:
             self._neopixel.show()
 
-    def fill(self, value):  # type: (color.Color) -> None
+    def fill(self, value):  # type: (Color) -> None
         """Fill the entire matrix with the given color value."""
         for row in self._matrix:
             row.fill(value)
 
-    def shift_left(self, values):  # type: (List[color.Color]) -> None
+    def shift_left(self, values):  # type: (List[Color]) -> None
         """Shift all current pixel values left one unit."""
         for row_index in range(self.height):
             row = self._matrix[row_index]
@@ -121,7 +122,7 @@ class LedMatrix(collections.abc.Sequence):
         self,
         matrix_row_index,  # type: int
         matrix_col_index,  # type: int
-        value,  # type: color.Color
+        value,  # type: Color
     ):  # type: (...) -> None
         """Update the NeoPixel pixel at the index corresponding to this position in the matrix.
 
@@ -210,8 +211,8 @@ class LedMatrix(collections.abc.Sequence):
         buf = ''
         for row in self._matrix:
             for pixel in row:
-                if not isinstance(pixel, color.Color):
-                    pixel = color.Color(pixel)
+                if not isinstance(pixel, Color):
+                    pixel = Color(pixel)
                 buf += pixel.__repr__()
             buf += '\n'
         return buf
@@ -219,10 +220,10 @@ class LedMatrix(collections.abc.Sequence):
     def __len__(self):  # type: () -> int
         return len(self._neopixel)
 
-    def __getitem__(self, index):  # type: (int) -> color.Color
+    def __getitem__(self, index):  # type: (int) -> Color
         return self._matrix[index]
 
-    def __setitem__(self, index, color):  # type: (int, color.Color) -> None
+    def __setitem__(self, index, color):  # type: (int, Color) -> None
         return self._matrix[index]
 
 
@@ -236,13 +237,13 @@ class _LedMatrixRow(collections.abc.Sequence):
         self._parent_matrix = parent_matrix
         self._parent_matrix_index = parent_matrix_index
         # TODO: use collections.deque for self._row for efficient left-element removal
-        self._row = [color.BLACK for _ in range(length)]
+        self._row = [BLACK for _ in range(length)]
 
-    def fill(self, value):  # type: (color.Color) -> None
+    def fill(self, value):  # type: (Color) -> None
         for pixel_index in range(len(self._row)):
             self[pixel_index] = value
 
-    def shift_left(self, value):  # type: (color.Color) -> None
+    def shift_left(self, value):  # type: (Color) -> None
         self._row.pop(0)
         self._row.append(value)
         for pixel_index in range(len(self)):
@@ -252,10 +253,10 @@ class _LedMatrixRow(collections.abc.Sequence):
     def __len__(self):  # type: () -> int
         return len(self._row)
 
-    def __getitem__(self, index):  # type: (int) -> color.Color
+    def __getitem__(self, index):  # type: (int) -> Color
         return self._row[index]
 
-    def __setitem__(self, index, value):  # type: (int, color.Color) -> None
+    def __setitem__(self, index, value):  # type: (int, Color) -> None
         self._row[index] = value
         self._parent_matrix._neopixel_set(self._parent_matrix_index, index, value)
 
@@ -276,7 +277,7 @@ if __name__ == '__main__':
         num_cols=args.cols,
         origin=getattr(MATRIX_ORIGIN, args.start),
         orientation=getattr(MATRIX_ORIENTATION, args.orient),
-        default_color=getattr(color, args.color),
+        default_color=getattr(colors, args.color),
     )
 
     for row_index in range(matrix.height):
