@@ -1,4 +1,5 @@
 """Module for translating text to a pixel matrix in a given font."""
+import re
 import string
 from typing import Dict, List, NamedTuple, Optional
 
@@ -41,24 +42,33 @@ class Font:
         self.font_path = font_path
         self.font_height_px = font_height_px
         self.enable_antialiasing = enable_antialiasing
-        self._char_cache = {}  # type: Dict[str, List[List[Color]]]
-        self._text_cache = {}  # type: Dict[str, List[List[Color]]]
         self._font_options = self._get_font_options()
+        print(self._font_options)
 
     def text_to_matrix(self, text):  # type: (str) -> List[List[Color]]
         """Convert a string to a matrix-friendly 2D array."""
         char_matrices = []  # type:  List[List[List[Color]]]
 
-        # return from cache if available
-        if self._text_cache.get(text):
-            return self._text_cache[text]
-
         # transform each character in text to a 2-D pixel matrix of binary values
-        for char in text:
-            # return from cache if available
-            if self._char_cache.get(char):
-                char_matrices.append(self._char_cache[char])
+        skip_chars = 0
+        for char_index, char in enumerate(text):
+            if skip_chars:
+                skip_chars -= 1
                 continue
+
+            # detect hexadecimals in the text and update the color
+            # TODO: refactor this to not suck
+            if char == '#':
+                if re.match(r'#[0-9A-Fa-f]{6}', text[char_index : char_index + 7]):
+                    r_hex = text[char_index + 1 : char_index + 3]
+                    g_hex = text[char_index + 3 : char_index + 5]
+                    b_hex = text[char_index + 5 : char_index + 7]
+                    r_int = int(r_hex, 16)
+                    g_int = int(g_hex, 16)
+                    b_int = int(b_hex, 16)
+                    self.color = Color(r_int, g_int, b_int, None)
+                    skip_chars = 7
+                    continue
 
             # convert char to matrix
             char_matrix = self._char_to_matrix(
@@ -70,13 +80,11 @@ class Font:
                 enable_antialiasing=self.enable_antialiasing,
             )
 
-            # add char matrix to cache and append to list of matrices
+            # append to list of matrices
             char_matrices.append(char_matrix)
-            self._char_cache[char] = char_matrix
 
-        # join characters matrices into a single matrix, then add to cache and return
+        # join characters matrices into a single matrix and return
         text_matrix = self._join_matrices(char_matrices)
-        self._text_cache[text] = text_matrix
         return text_matrix
 
     def _join_matrices(self, matrices):  # type: (List[List[List[Color]]]) -> List[List[Color]]
@@ -128,7 +136,7 @@ class Font:
                     pixel_value = image.getpixel((col_index, row_index))
                     # invert value for colored text on dark background
                     pixel_value = abs(pixel_value - 255)
-                    color_value = self._eight_bit_value_to_color(color_value, self.color)
+                    color_value = self._eight_bit_value_to_color(pixel_value, self.color)
                     row.append(color_value)
                 except IndexError:
                     row.append(BLACK)
@@ -177,8 +185,7 @@ class Font:
                 font_shift_down_px -= 0.5  # type: ignore
                 continue
 
-            # else the font is properly scaled: cache and return the result
-            self._char_cache = char_matrices
+            # else the font is properly scaled: return the result
             return FontOptions(
                 font_expand_px=font_expand_px,
                 font_shift_down_px=font_shift_down_px,

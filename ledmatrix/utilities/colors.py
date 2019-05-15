@@ -28,6 +28,10 @@ _ColorTuple = NamedTuple(
 class Color(_ColorTuple):
     """Container for an RGB color value."""
 
+    def __bool__(self):  # type: () -> bool
+        """Return False only for black."""
+        return any(self)
+
     def __str__(self):  # type: () -> str
         """Format class instance as a code-friendly string."""
         return self.__repr__()
