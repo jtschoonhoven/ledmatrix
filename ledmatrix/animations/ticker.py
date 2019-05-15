@@ -1,10 +1,10 @@
 """Render scrolling text."""
 import time
-from typing import Any, List
+from typing import Any, List, Optional
 
 from ledmatrix import matrix
-from ledmatrix.utilities.colors import BLACK, Color
 from ledmatrix.utilities import colors, font
+from ledmatrix.utilities.colors import BLACK, Color
 
 
 class Ticker(matrix.LedMatrix):
@@ -20,7 +20,7 @@ class Ticker(matrix.LedMatrix):
         self._delay_seconds = delay_seconds
         self.font = font.Font(font_height_px=self.height)
 
-    def write_static(self, text, value=None):  # type: (str, Color) -> None
+    def write_static(self, text, value=None):  # type: (str, Optional[Color]) -> None
         """Render static text that does not scroll."""
         text_matrix = self.font.text_to_matrix(text)
 
@@ -28,12 +28,11 @@ class Ticker(matrix.LedMatrix):
         for row_index in range(self.height):
             for col_index in range(self.width):
                 if col_index < len(text_matrix[row_index]):
-                    pixel_brightness = text_matrix[row_index][col_index]
-                    pixel_color = self._eight_bit_value_to_color(pixel_brightness)
-                    self[row_index][col_index] = pixel_color
+                    pixel_color = text_matrix[row_index][col_index]
+                    self[row_index][col_index] = pixel_color  # type: ignore
         self.render()
 
-    def write_scroll(self, text, value=None):  # type: (str, Color) -> None
+    def write_scroll(self, text, color=None):  # type: (str, Optional[Color]) -> None
         """Render text that scrolls right to left."""
         text_matrix = self.font.text_to_matrix(text)
         text_matrix_length = len(text_matrix[0])
@@ -42,25 +41,13 @@ class Ticker(matrix.LedMatrix):
             next_col = []
             for row_index in range(self.height):
                 try:
-                    pixel_brightness = text_matrix[row_index][index]
-                    pixel_color = self._eight_bit_value_to_color(pixel_brightness)
+                    pixel_color = text_matrix[row_index][index]
                 except IndexError:
                     pixel_color = BLACK
                 next_col.append(pixel_color)
             self.shift_left(next_col)
             time.sleep(self._delay_seconds)
             self.render()
-
-    def _eight_bit_value_to_color(self, value):  # type: (int) -> Color
-        """Convert an 8-bit grayscale value (0-255) to a Color value object in the default color."""
-        rgb_channels = []  # type: List[int]
-        for rgb_channel in self.default_color:
-            if rgb_channel is None:
-                rgb_channels.append(None)
-            else:
-                channel_value = int(rgb_channel * (value / 255))
-                rgb_channels.append(channel_value)
-        return Color(*rgb_channels)
 
 
 if __name__ == '__main__':

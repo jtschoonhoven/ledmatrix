@@ -1,6 +1,7 @@
 """Drop-in replacement for the Adafruit neopixel library: prints matrix to STDOUT."""
 import collections
 import os
+from typing import Union
 
 from ledmatrix.stubs.mock_gpio_pin import MockGpioPin
 from ledmatrix.utilities.colors import BLACK, Color, ColorOrder, GRB, GRBW, RGB
@@ -32,7 +33,7 @@ class MockNeoPixel(collections.abc.Sequence):
         buf = ''
         for pixel in self._pixels:
             if len(pixel) == 3:
-                buf += Color(*pixel, 0).__repr__()
+                buf += Color(*pixel, 0).__repr__()  # type: ignore
             else:
                 buf += Color(*pixel).__repr__()
         buf += '\n'
@@ -41,9 +42,9 @@ class MockNeoPixel(collections.abc.Sequence):
     def __len__(self):  # type: () -> int
         return len(self._pixels)
 
-    def __getitem__(self, index):  # type: (int) -> Color
+    def __getitem__(self, index):  # type: (Union[int, slice]) -> Color
         """Return the RGB value for a given pixel."""
-        return self._pixels[index]
+        return self._pixels[index]  # type: ignore
 
     def __setitem__(self, index, color):  # type: (int, Color) -> None
         """Set the RGB value for a given pixel."""
@@ -58,7 +59,7 @@ class MockNeoPixel(collections.abc.Sequence):
         """
         if self.color_order in (GRB, GRBW):
             color = self._rgb_to_grb(color)
-        for pixel_index, _ in self._pixels:
+        for pixel_index, _ in enumerate(self._pixels):
             self._pixels[pixel_index] = color
         if self.auto_write:
             print(self)
@@ -74,6 +75,10 @@ class MockNeoPixel(collections.abc.Sequence):
         for pixel_index in range(len(self)):
             self[pixel_index] = BLACK
 
-    def _rgb_to_grb(self, color: Color):  # type: (Color) -> Color
+    def _rgb_to_grb(self, color):  # type: (Color) -> Color
         """Translate a Color object from RGB to GRB."""
+        if len(color) == 3:
+            color = Color(color[0], color[1], color[2], None)
+        else:
+            color = Color(*color)
         return Color(red=color.green, green=color.red, blue=color.blue, white=color.white)

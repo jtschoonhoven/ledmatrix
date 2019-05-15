@@ -10,19 +10,19 @@ from ledmatrix.utilities.colors import Color
 class ColorCycle(matrix.LedMatrix):
     """Cycle each pixel through all possible RGB values."""
 
-    def __init__(self, *args, gradient_multiplier=1, **kwargs):  # type: (*Any, **Any) -> None
+    def __init__(self, *args, gradient_multiplier=1, **kwargs):  # type: (*Any, int, **Any) -> None
         super().__init__(*args, **kwargs)
 
         # fill with slight gradient
         self.fill(self.default_color)
         for row_index in range(self.height):
             for col_index in range(self.width):
-                pixel = self[row_index][col_index]
+                pixel = self[row_index][col_index]  # type: Color
                 for _ in range(row_index * gradient_multiplier):
                     pixel = self._next_pixel_value(pixel)
                 for _ in range(col_index * gradient_multiplier):
                     pixel = self._next_pixel_value(pixel)
-                self[row_index][col_index] = pixel
+                self[row_index][col_index] = pixel  # type: ignore
 
     def next_state(self):  # type: () -> None
         """Update each pixel to the next RGB value."""

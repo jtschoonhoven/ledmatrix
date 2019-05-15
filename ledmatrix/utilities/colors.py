@@ -35,7 +35,7 @@ class Color(_ColorTuple):
     def __repr__(self):  # type: () -> str
         """Format the class instance as a developer-friendly string representation."""
         # TODO: apply color order
-        return ansicolor('██', fg=(self.red, self.green, self.blue))
+        return ansicolor('██', fg=(self.red, self.green, self.blue))  # type: ignore
 
 
 RED = Color(255, 0, 0, None)

@@ -4,7 +4,7 @@ import os
 import time
 from enum import Enum
 from logging import getLogger
-from typing import List
+from typing import List, Union
 
 log = getLogger(__name__)
 
@@ -74,9 +74,9 @@ class LedMatrix(collections.abc.Sequence):
 
         # coerce pixel_order to plain tuple
         if pixel_order.white is None:
-            pixel_order = (pixel_order.red, pixel_order.green, pixel_order.blue)
+            pixel_order = ColorOrder(pixel_order.red, pixel_order.green, pixel_order.blue, None)
         else:
-            pixel_order = (pixel_order.red, pixel_order.green, pixel_order.blue, pixel_order.white)
+            pixel_order = ColorOrder(pixel_order.red, pixel_order.green, pixel_order.blue, pixel_order.white)
 
         # initialize underlying NeoPixel
         self._neopixel = NeoPixel(
@@ -88,7 +88,7 @@ class LedMatrix(collections.abc.Sequence):
         )
 
         # initialize each row in matrix
-        self._matrix = []  # type: List[List[Color]]
+        self._matrix = []  # type: List[_LedMatrixRow]
         for row_index in range(num_rows):
             self._matrix.append(_LedMatrixRow(self, row_index, num_cols))
 
@@ -210,21 +210,24 @@ class LedMatrix(collections.abc.Sequence):
     def __repr__(self):  # type: () -> str
         buf = ''
         for row in self._matrix:
-            for pixel in row:
-                if not isinstance(pixel, Color):
-                    pixel = Color(pixel)
-                buf += pixel.__repr__()
+            for color in row:
+                if not isinstance(color, Color):
+                    if len(color) == 4:
+                        color = Color(*color)
+                    else:
+                        color = Color(color[0], color[1], color[2], None)
+                buf += color.__repr__()
             buf += '\n'
         return buf
 
     def __len__(self):  # type: () -> int
         return len(self._neopixel)
 
-    def __getitem__(self, index):  # type: (int) -> Color
-        return self._matrix[index]
+    def __getitem__(self, index):  # type: (Union[int, slice]) -> Color
+        return self._matrix[index]  # type: ignore
 
     def __setitem__(self, index, color):  # type: (int, Color) -> None
-        return self._matrix[index]
+        return self._matrix[index]  # type: ignore
 
 
 class _LedMatrixRow(collections.abc.Sequence):
@@ -253,8 +256,8 @@ class _LedMatrixRow(collections.abc.Sequence):
     def __len__(self):  # type: () -> int
         return len(self._row)
 
-    def __getitem__(self, index):  # type: (int) -> Color
-        return self._row[index]
+    def __getitem__(self, index):  # type: (Union[int, slice]) -> Color
+        return self._row[index]  # type: ignore
 
     def __setitem__(self, index, value):  # type: (int, Color) -> None
         self._row[index] = value
@@ -282,7 +285,7 @@ if __name__ == '__main__':
 
     for row_index in range(matrix.height):
         for col_index in range(matrix.width):
-            matrix[row_index][col_index] = matrix.default_color
+            matrix[row_index][col_index] = matrix.default_color  # type: ignore
             matrix.render()
             time.sleep(args.delay)
 

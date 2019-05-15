@@ -31,7 +31,7 @@ class GameOfLife(matrix.LedMatrix):
                 if random.random() > INITIAL_POPULATION_DENSITY:  # noqa: S311
                     cell = CellCoords(row_index, col_index)
                     self._living_cell_coordinates.add(cell)
-                    self[row_index][col_index] = self.default_color
+                    self[row_index][col_index] = self.default_color  # type: ignore
 
     def next_state(self):  # type: () -> None
         """Determine which cells live and die and apply to matrix."""
@@ -53,9 +53,9 @@ class GameOfLife(matrix.LedMatrix):
             for col_index in range(self.width):
                 cell = CellCoords(row_index, col_index)
                 if self._is_alive(cell):
-                    self[row_index][col_index] = self.default_color
+                    self[row_index][col_index] = self.default_color    # type: ignore
                 else:
-                    self[row_index][col_index] = BLACK
+                    self[row_index][col_index] = BLACK    # type: ignore
 
     def _is_alive(self, cell):  # type: (CellCoords) -> bool
         """Return True if the given cell is alive in the current round."""

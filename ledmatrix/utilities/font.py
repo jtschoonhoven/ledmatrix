@@ -1,10 +1,13 @@
 """Module for translating text to a pixel matrix in a given font."""
 import string
-from typing import Dict, List, NamedTuple
+from typing import Dict, List, NamedTuple, Optional
 
 from PIL import Image, ImageDraw, ImageFont
 
+from ledmatrix.utilities.colors import BLACK, Color, RED
 
+
+DEFAULT_COLOR = RED
 DEFAULT_FONT_HEIGHT_PX = 7
 DEFAULT_FONT_PATH = 'ledmatrix/fonts/zig.ttf'
 PIL_IMAGE_MODE_1BIT = '1'  # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
@@ -29,20 +32,22 @@ class Font:
 
     def __init__(
         self,
+        color=DEFAULT_COLOR,  # type: Color
         font_path=DEFAULT_FONT_PATH,  # type: str
         font_height_px=DEFAULT_FONT_HEIGHT_PX,  # type: int
         enable_antialiasing=True,  # type: bool
     ):  # type: (...) -> None
+        self.color = color
         self.font_path = font_path
         self.font_height_px = font_height_px
         self.enable_antialiasing = enable_antialiasing
-        self._char_cache = {}  # type: Dict[str, List[List[int]]]
-        self._text_cache = {}  # type: Dict[str, List[List[int]]]
+        self._char_cache = {}  # type: Dict[str, List[List[Color]]]
+        self._text_cache = {}  # type: Dict[str, List[List[Color]]]
         self._font_options = self._get_font_options()
 
-    def text_to_matrix(self, text):  # type: (str) -> List[List[int]]
+    def text_to_matrix(self, text):  # type: (str) -> List[List[Color]]
         """Convert a string to a matrix-friendly 2D array."""
-        char_matrices = []  # type:  List[List[List[int]]]
+        char_matrices = []  # type:  List[List[List[Color]]]
 
         # return from cache if available
         if self._text_cache.get(text):
@@ -74,9 +79,9 @@ class Font:
         self._text_cache[text] = text_matrix
         return text_matrix
 
-    def _join_matrices(self, matrices):  # type: (List[List[List[int]]]) -> List[List[int]]
+    def _join_matrices(self, matrices):  # type: (List[List[List[Color]]]) -> List[List[Color]]
         """Concatenate multiple matrices (a 3D-matrix) into a single matrix (2D)."""
-        joined_matrix = []  # type: List[List[int]]
+        joined_matrix = []  # type: List[List[Color]]
 
         # join character matrices into a single matrix
         for row_index in range(self.font_height_px):
@@ -94,7 +99,7 @@ class Font:
         font_expand_px=0,  # type: int
         font_shift_down_px=0,  # type: int
         enable_antialiasing=True,  # type: bool
-    ):  # type: (...) -> List[List[int]]
+    ):  # type: (...) -> List[List[Color]]
         """Convert a single character to a 2-D matrix.
 
         From: stackoverflow.com/questions/36384353/generate-pixel-matrices-from-characters-in-string
@@ -114,18 +119,19 @@ class Font:
         draw.text(origin, char, font=font)
 
         # populate the matrix
-        matrix_rows = []  # type: List[List[int]]
+        matrix_rows = []  # type: List[List[Color]]
         for row_index in range(font_height_px):
-            row = []  # type: List[int]
+            row = []  # type: List[Color]
             for col_index in range(bitmap_width_px):
                 try:
                     # pixel value is 0 or 1 for BW, 0-255 for grayscale
                     pixel_value = image.getpixel((col_index, row_index))
                     # invert value for colored text on dark background
                     pixel_value = abs(pixel_value - 255)
-                    row.append(pixel_value)
+                    color_value = self._eight_bit_value_to_color(color_value, self.color)
+                    row.append(color_value)
                 except IndexError:
-                    row.append(PIL_COLOR_BLACK)
+                    row.append(BLACK)
 
             matrix_rows.append(row)
         return matrix_rows
@@ -142,7 +148,7 @@ class Font:
 
         # continue tweaking font size until characters are perfectly scaled
         while True:
-            char_matrices = {}  # type: Dict[str, List[List[int]]]
+            char_matrices = {}  # type: Dict[str, List[List[Color]]]
 
             # generate a matrix for each character
             for char in test_chars:
@@ -177,3 +183,14 @@ class Font:
                 font_expand_px=font_expand_px,
                 font_shift_down_px=font_shift_down_px,
             )
+
+    @staticmethod
+    def _eight_bit_value_to_color(eight_bit_int, color):  # type: (int, Color) -> Color
+        """Convert an 8-bit grayscale value (0-255) to a Color value object in the default color."""
+        r = int(color.red * (eight_bit_int / 255))
+        g = int(color.green * (eight_bit_int / 255))
+        b = int(color.blue * (eight_bit_int / 255))
+        w = None
+        if color.white is not None:
+            w = int(color.white * (eight_bit_int / 255))
+        return Color(r, g, b, w)
