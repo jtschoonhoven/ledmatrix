@@ -74,9 +74,14 @@ class LedMatrix(collections.abc.Sequence):
 
         # coerce pixel_order to plain tuple
         if pixel_order.white is None:
-            pixel_order = ColorOrder(pixel_order.red, pixel_order.green, pixel_order.blue, None)
+            pixel_order_raw = (pixel_order.red, pixel_order.green, pixel_order.blue)
         else:
-            pixel_order = ColorOrder(pixel_order.red, pixel_order.green, pixel_order.blue, pixel_order.white)
+            pixel_order_raw = (  # type: ignore
+                pixel_order.red,
+                pixel_order.green,
+                pixel_order.blue,
+                pixel_order.white,
+            )
 
         # initialize underlying NeoPixel
         self._neopixel = NeoPixel(
@@ -84,7 +89,7 @@ class LedMatrix(collections.abc.Sequence):
             num_pixels,
             brightness=brightness,
             auto_write=auto_write,
-            pixel_order=pixel_order,
+            pixel_order=pixel_order_raw,
         )
 
         # initialize each row in matrix
