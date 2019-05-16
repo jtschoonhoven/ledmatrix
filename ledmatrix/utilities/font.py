@@ -67,7 +67,7 @@ class Font:
                     g_int = int(g_hex, 16)
                     b_int = int(b_hex, 16)
                     self.color = Color(r_int, g_int, b_int, None)
-                    skip_chars = 7
+                    skip_chars = 6
                     continue
 
             # convert char to matrix
