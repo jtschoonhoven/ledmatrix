@@ -10,7 +10,7 @@ cd ledmatrix
 sudo apt-get install libjpeg-dev zlib1g-dev
 
 # install python dependencies (sudo is required on RPI)
-sudo python3 -m pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
 
 # run
 sudo python3 -m ledmatrix.animations.game_of_life --rows 10 --cols 10
