@@ -9,11 +9,9 @@ cd ledmatrix
 # install linux dependencies
 sudo apt-get install libjpeg-dev zlib1g-dev
 
-# install python dependencies
-python3 -m venv ./venv
-source venv/bin/activate
-python3 -m pip install -r requirements.txt
+# install python dependencies (sudo is required on RPI)
+sudo python3 -m pip install -r requirements.txt
 
 # run
-sudo python3 -m ledmatrix.game_of_life
+sudo python3 -m ledmatrix.animations.game_of_life --rows 10 --cols 10
 ```
