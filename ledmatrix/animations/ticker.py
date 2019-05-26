@@ -54,7 +54,7 @@ class Ticker(matrix.LedMatrix):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--text', '-t', type=str, default='Hello, World!')
+    parser.add_argument('--text', '-t', type=str, default=None)
     parser.add_argument('--file', '-f', type=str, default=None)
     parser.add_argument('--rows', '-r', type=int, default=7)
     parser.add_argument('--cols', '-c', type=int, default=4)
@@ -75,22 +75,28 @@ if __name__ == '__main__':
     )
 
     try:
-        # display contents of file (if exists)
+        # continuously loop over contents of file
         if args.file:
-            try:
-                with open(args.file) as file_obj:
-                    for line in file_obj:
-                        line = line.strip()
-                        if line:
-                            ticker.write_scroll(line)
-                sys.exit(0)
-            except FileNotFoundError:
-                ticker.write_scroll('File not found!')
-        
-        # else display text
-        text = args.text.strip()
-        if text:
-            ticker.write_scroll(text)
+            while True:
+                try:
+                    with open(args.file) as file_obj:
+                        for line in file_obj:
+                            line = line.strip()
+                            if line:
+                                ticker.write_scroll(line)
+                except FileNotFoundError:
+                    # print backup text if exists, else warn
+                    if args.text:
+                        ticker.write_scroll(args.text.strip())
+                    else:
+                        ticker.write_scroll('File not found!')
+
+        # else display text on a loop
+        elif args.text:
+            while True:
+                ticker.write_scroll(args.text.strip())
+        else:
+            raise Exception('No `text` or `file` input: nothing to display.')
 
     finally:
         ticker.deinit()
