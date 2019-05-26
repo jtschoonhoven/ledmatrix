@@ -1,4 +1,5 @@
 """Render scrolling text."""
+import sys
 import time
 from typing import Any, List, Optional
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--text', '-t', type=str, default='Hello, World!')
+    parser.add_argument('--file', '-f', type=str, default=None)
     parser.add_argument('--rows', '-r', type=int, default=7)
     parser.add_argument('--cols', '-c', type=int, default=4)
     parser.add_argument('--delay', '-d', type=float, default=0.02)
@@ -71,7 +73,22 @@ if __name__ == '__main__':
         auto_write=False,
         default_color=getattr(colors, args.color),
     )
-    try:
-        ticker.write_scroll(args.text)
-    finally:
-        ticker.deinit()
+
+    # display contents of file (if exists)
+    if args.file:
+        try:
+            with open(args.file) as file_obj:
+                for line in file_obj:
+                    line = line.strip()
+                    if line:
+                        ticker.write_scroll(line.strip())
+            sys.exit(0)
+        except FileNotFoundError:
+            ticker.write_scroll('File not found!')
+    
+    # else display text
+    if args.text.strip():
+        try:
+            ticker.write_scroll(args.text.strip())
+        finally:
+            ticker.deinit()
