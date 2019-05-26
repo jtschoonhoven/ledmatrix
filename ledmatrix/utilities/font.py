@@ -1,4 +1,5 @@
 """Module for translating text to a pixel matrix in a given font."""
+import os
 import re
 import string
 from typing import Dict, List, NamedTuple, Optional
@@ -10,7 +11,7 @@ from ledmatrix.utilities.colors import BLACK, Color, RED
 
 DEFAULT_COLOR = RED
 DEFAULT_FONT_HEIGHT_PX = 7
-DEFAULT_FONT_PATH = 'ledmatrix/fonts/zig.ttf'
+DEFAULT_FONT_PATH = '../fonts/zig.ttf'  # path is relative to this module
 PIL_IMAGE_MODE_1BIT = '1'  # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
 PIL_IMAGE_MODE_8BIT = 'L'
 PIL_COLOR_MODE_8BIT = 255
@@ -116,9 +117,11 @@ class Font:
             image_mode = PIL_IMAGE_MODE_8BIT
         else:
             image_mode = PIL_IMAGE_MODE_1BIT
+        
 
         # parse the font and write the char to a bitmap
-        font = ImageFont.truetype(font_path, font_height_px + font_expand_px)
+        font_abspath = os.path.join(os.path.dirname(__file__), font_path)
+        font = ImageFont.truetype(font_abspath, font_height_px + font_expand_px)
         bitmap_width_px, bitmap_height_px = font.getsize(char)
         bitmap_size = (bitmap_width_px, bitmap_height_px)
         image = Image.new(mode=image_mode, size=bitmap_size, color=PIL_COLOR_MODE_8BIT)
