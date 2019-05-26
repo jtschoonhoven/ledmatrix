@@ -74,21 +74,23 @@ if __name__ == '__main__':
         default_color=getattr(colors, args.color),
     )
 
-    # display contents of file (if exists)
-    if args.file:
-        try:
-            with open(args.file) as file_obj:
-                for line in file_obj:
-                    line = line.strip()
-                    if line:
-                        ticker.write_scroll(line.strip())
-            sys.exit(0)
-        except FileNotFoundError:
-            ticker.write_scroll('File not found!')
-    
-    # else display text
-    if args.text.strip():
-        try:
-            ticker.write_scroll(args.text.strip())
-        finally:
-            ticker.deinit()
+    try:
+        # display contents of file (if exists)
+        if args.file:
+            try:
+                with open(args.file) as file_obj:
+                    for line in file_obj:
+                        line = line.strip()
+                        if line:
+                            ticker.write_scroll(line)
+                sys.exit(0)
+            except FileNotFoundError:
+                ticker.write_scroll('File not found!')
+        
+        # else display text
+        text = args.text.strip()
+        if text:
+            ticker.write_scroll(text)
+
+    finally:
+        ticker.deinit()
