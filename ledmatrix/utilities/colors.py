@@ -42,8 +42,11 @@ class Color(_ColorTuple):
         return ansicolor('██', fg=(self.red, self.green, self.blue))  # type: ignore
 
 
+BLACK = Color(0, 0, 0, None)
 RED = Color(255, 0, 0, None)
 GREEN = Color(0, 255, 0, None)
 BLUE = Color(0, 0, 255, None)
+YELLOW = Color(255, 255, 0, None)
+TEAL = Color(0, 255, 255, None)
+PINK = Color(255, 0, 255, None)
 WHITE = Color(255, 255, 255, None)
-BLACK = Color(0, 0, 0, None)
