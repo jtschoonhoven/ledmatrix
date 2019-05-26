@@ -44,7 +44,6 @@ class Font:
         self.font_height_px = font_height_px
         self.enable_antialiasing = enable_antialiasing
         self._font_options = self._get_font_options()
-        print(self._font_options)
 
     def text_to_matrix(self, text):  # type: (str) -> List[List[Color]]
         """Convert a string to a matrix-friendly 2D array."""
