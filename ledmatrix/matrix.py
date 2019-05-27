@@ -32,6 +32,7 @@ class MATRIX_ORIGIN(Enum):
     """Configures whether the NeoPixel originates in the top-left or right corner of the matrix."""
     NORTHEAST = 'NE'  # type: str
     NORTHWEST = 'NW'  # type: str
+    SOUTHEAST = 'SE'  # type: str
 
 
 class MATRIX_ORIENTATION(Enum):
@@ -149,6 +150,10 @@ class LedMatrix(collections.abc.Sequence):
             # the first pixel is in the top-left corner of the board
             if self.origin == MATRIX_ORIGIN.NORTHWEST:
                 neopixel_index = neopixel_row_index + matrix_col_index
+            # the first pixel is in the bottom-right corner of the board
+            elif self.origin == MATRIX_ORIGIN.SOUTHEAST:
+                # NOTE: this is probably wrong
+                neopixel_index = (self.height - neopixel_row_index) + (self.width - matrix_col_index) - 2
             # the first pixel is in the top-right corner of the board
             else:
                 neopixel_index = neopixel_row_index + (self.width - matrix_col_index) - 1
@@ -157,6 +162,10 @@ class LedMatrix(collections.abc.Sequence):
         elif self.orientation == MATRIX_ORIENTATION.COLUMN:
             # the first pixel is in the top-left corner of the board
             if self.origin == MATRIX_ORIGIN.NORTHWEST:
+                neopixel_index = neopixel_col_index + matrix_row_index
+            # the first pixel is in the bottom-right corner of the board
+            elif self.origin == MATRIX_ORIGIN.SOUTHEAST:
+                # NOTE: this is probably wrong
                 neopixel_index = neopixel_col_index + matrix_row_index
             # the first pixel is in the top-right corner of the board
             else:
@@ -172,6 +181,14 @@ class LedMatrix(collections.abc.Sequence):
                 # this strip's orientation is switched right-to-left
                 else:
                     neopixel_index = (neopixel_row_index - (self.width - 1)) + matrix_col_index
+            # the first pixel is in the bottom-right corner of the board
+            elif self.origin == MATRIX_ORIGIN.SOUTHEAST:
+                # this strip is oriented right-to-left
+                if neopixel_row_alt:
+                    neopixel_index = neopixel_row_index + ((self.width - 1) - matrix_col_index)
+                # this strip's orientation is switched left-to-right
+                else:
+                    neopixel_index = neopixel_row_index + matrix_col_index
             # the first pixel is in the top-right corner of the board
             else:
                 # this strip is oriented right-to-left
@@ -187,6 +204,14 @@ class LedMatrix(collections.abc.Sequence):
             if self.origin == MATRIX_ORIGIN.NORTHWEST:
                 # this strip is oriented top-to-bottom
                 if not neopixel_col_alt:
+                    neopixel_index = neopixel_col_index + matrix_row_index
+                # this strip's orientation is switched bottom-to-top
+                else:
+                    neopixel_index = neopixel_col_index + ((self.height - 1) - matrix_row_index)
+            # the first pixel is in the bottom-right corner of the board
+            elif self.origin == MATRIX_ORIGIN.SOUTHEAST:
+               # this strip is oriented top-to-bottom
+                if neopixel_col_alt:
                     neopixel_index = neopixel_col_index + matrix_row_index
                 # this strip's orientation is switched bottom-to-top
                 else:
