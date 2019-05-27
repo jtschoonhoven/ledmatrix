@@ -2,9 +2,10 @@
 import collections
 import os
 import time
+from collections import deque
 from enum import Enum
 from logging import getLogger
-from typing import List, Union
+from typing import Deque, List, Union
 
 log = getLogger(__name__)
 
@@ -94,7 +95,7 @@ class LedMatrix(collections.abc.Sequence):
         )
 
         # initialize each row in matrix
-        self._matrix = []  # type: List[_LedMatrixRow]
+        self._matrix = deque([], maxlen=num_rows)  # type: Deque[_LedMatrixRow]
         for row_index in range(num_rows):
             self._matrix.append(_LedMatrixRow(self, row_index, num_cols))
 
@@ -270,14 +271,13 @@ class _LedMatrixRow(collections.abc.Sequence):
         self._parent_matrix = parent_matrix
         self._parent_matrix_index = parent_matrix_index
         # TODO: use collections.deque for self._row for efficient left-element removal
-        self._row = [BLACK for _ in range(length)]
+        self._row = deque([BLACK for _ in range(length)], maxlen=length)  # type: Deque[Color]
 
     def fill(self, value):  # type: (Color) -> None
         for pixel_index in range(len(self._row)):
             self[pixel_index] = value
 
     def shift_left(self, value):  # type: (Color) -> None
-        self._row.pop(0)
         self._row.append(value)
         for pixel_index in range(len(self)):
             pixel_value = self[pixel_index]
