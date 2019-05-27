@@ -5,7 +5,10 @@ import time
 from collections import deque
 from enum import Enum
 from logging import getLogger
-from typing import Deque, List, Union
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Deque, List, Union
 
 log = getLogger(__name__)
 
@@ -154,7 +157,7 @@ class LedMatrix(collections.abc.Sequence):
             # the first pixel is in the bottom-right corner of the board
             elif self.origin == MATRIX_ORIGIN.SOUTHEAST:
                 # NOTE: this is probably wrong
-                neopixel_index = (self.height - neopixel_row_index) + (self.width - matrix_col_index) - 2
+                neopixel_index = (self.height - neopixel_row_index) + (self.width - matrix_col_index) - 2  # noqa: E501
             # the first pixel is in the top-right corner of the board
             else:
                 neopixel_index = neopixel_row_index + (self.width - matrix_col_index) - 1
@@ -211,7 +214,7 @@ class LedMatrix(collections.abc.Sequence):
                     neopixel_index = neopixel_col_index + ((self.height - 1) - matrix_row_index)
             # the first pixel is in the bottom-right corner of the board
             elif self.origin == MATRIX_ORIGIN.SOUTHEAST:
-               # this strip is oriented top-to-bottom
+                # this strip is oriented top-to-bottom
                 if neopixel_col_alt:
                     neopixel_index = neopixel_col_index + matrix_row_index
                 # this strip's orientation is switched bottom-to-top
