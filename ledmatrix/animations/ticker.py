@@ -1,7 +1,6 @@
 """Render scrolling text."""
-import sys
 import time
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from ledmatrix import matrix
 from ledmatrix.utilities import colors, font

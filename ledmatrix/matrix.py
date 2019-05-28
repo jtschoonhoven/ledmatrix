@@ -231,9 +231,13 @@ class LedMatrix(collections.abc.Sequence):
 
         # set value on pixel
         if value.white is None:
-            self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
+            new_value = (value.red, value.green, value.blue)
+            if self._neopixel[neopixel_index] != new_value:
+                self._neopixel[neopixel_index] = new_value
         else:
-            self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
+            new_value = (value.red, value.green, value.blue, value.white)
+            if self._neopixel[neopixel_index] != new_value:
+                self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
 
         # print if using a mock neopixel and auto_write is True
         if isinstance(self._neopixel, mock_neopixel.MockNeoPixel):
