@@ -146,10 +146,6 @@ class LedMatrix(collections.abc.Sequence):
         if matrix_col_index < 0 or matrix_col_index >= self.width:
             return None
 
-        # do nothing if the cell is already set to the desired color
-        if value == self._matrix[matrix_row_index][matrix_col_index]:
-            return None
-
         # the "neopixel row index" is the index of the first pixel for the specified row
         neopixel_row_index = matrix_row_index * self.width
         if self.origin == MATRIX_ORIGIN.NORTHWEST:
@@ -293,10 +289,23 @@ class _LedMatrixRow(collections.abc.Sequence):
             self[pixel_index] = value
 
     def shift_left(self, value):  # type: (Color) -> None
-        self._row.append(value)  # row is a fixed-length deque, so appending auto-shifts values
-        for pixel_index in range(len(self)):
-            pixel_value = self[pixel_index]
-            self._parent_matrix._neopixel_set(self._parent_matrix_index, pixel_index, pixel_value)
+        for pixel_index in range(1, len(self) + 1):
+            # no need to update the leftmost pixel
+            if pixel_index == 0:
+                continue
+
+            if pixel_index == len(self):
+                right_pixel_value = value
+            else:
+                right_pixel_value = self[pixel_index]
+
+            # no need to update a pixel that is already the desired value
+            left_pixel_value = self[pixel_index - 1]
+            if right_pixel_value == left_pixel_value:
+                continue
+
+            # set the left-hand pixel to the right-hand value
+            self[pixel_index - 1] = right_pixel_value
 
     def __len__(self):  # type: () -> int
         return len(self._row)
