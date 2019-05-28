@@ -138,6 +138,18 @@ class LedMatrix(collections.abc.Sequence):
 
         TODO: make this less of a clusterfuck.
         """
+        # do nothing if row index is out of range
+        if matrix_row_index < 0 or matrix_row_index >= self.height:
+            return None
+
+        # do nothingig col index is out of range
+        if matrix_col_index < 0 or matrix_col_index >= self.width:
+            return None
+
+        # do nothing if the cell is already set to the desired color
+        if value == self._matrix[matrix_row_index][matrix_col_index]:
+            return None
+
         # the "neopixel row index" is the index of the first pixel for the specified row
         neopixel_row_index = matrix_row_index * self.width
         if self.origin == MATRIX_ORIGIN.NORTHWEST:
@@ -231,13 +243,9 @@ class LedMatrix(collections.abc.Sequence):
 
         # set value on pixel
         if value.white is None:
-            new_value = (value.red, value.green, value.blue)
-            if self._neopixel[neopixel_index] != new_value:
-                self._neopixel[neopixel_index] = new_value
+            self._neopixel[neopixel_index] = (value.red, value.green, value.blue)
         else:
-            new_value = (value.red, value.green, value.blue, value.white)
-            if self._neopixel[neopixel_index] != new_value:
-                self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
+            self._neopixel[neopixel_index] = (value.red, value.green, value.blue, value.white)
 
         # print if using a mock neopixel and auto_write is True
         if isinstance(self._neopixel, mock_neopixel.MockNeoPixel):
@@ -285,7 +293,7 @@ class _LedMatrixRow(collections.abc.Sequence):
             self[pixel_index] = value
 
     def shift_left(self, value):  # type: (Color) -> None
-        self._row.append(value)
+        self._row.append(value)  # row is a fixed-length deque, so appending auto-shifts values
         for pixel_index in range(len(self)):
             pixel_value = self[pixel_index]
             self._parent_matrix._neopixel_set(self._parent_matrix_index, pixel_index, pixel_value)
