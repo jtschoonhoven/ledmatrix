@@ -119,6 +119,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rows', '-r', type=int, default=4)
     parser.add_argument('--cols', '-c', type=int, default=4)
+    parser.add_argument('--brightness', '-b', type=float, default=1)
     parser.add_argument('--turns', '-t', type=int, default=20)
     parser.add_argument('--delay', '-d', type=float, default=0.2)
     parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')

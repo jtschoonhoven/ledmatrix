@@ -57,6 +57,7 @@ if __name__ == '__main__':
     parser.add_argument('--file', '-f', type=str, default=None)
     parser.add_argument('--rows', '-r', type=int, default=7)
     parser.add_argument('--cols', '-c', type=int, default=4)
+    parser.add_argument('--brightness', '-b', type=float, default=1)
     parser.add_argument('--delay', '-d', type=float, default=0.02)
     parser.add_argument('--orient', '-o', type=str, default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')

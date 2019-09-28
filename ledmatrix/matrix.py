@@ -142,7 +142,7 @@ class LedMatrix(collections.abc.Sequence):
         if matrix_row_index < 0 or matrix_row_index >= self.height:
             return None
 
-        # do nothingig col index is out of range
+        # do nothing if col index is out of range
         if matrix_col_index < 0 or matrix_col_index >= self.width:
             return None
 
@@ -281,7 +281,6 @@ class _LedMatrixRow(collections.abc.Sequence):
     ):  # type: (...) -> None
         self._parent_matrix = parent_matrix
         self._parent_matrix_index = parent_matrix_index
-        # TODO: use collections.deque for self._row for efficient left-element removal
         self._row = deque([BLACK for _ in range(length)], maxlen=length)  # type: Deque[Color]
 
     def fill(self, value):  # type: (Color) -> None
@@ -290,10 +289,6 @@ class _LedMatrixRow(collections.abc.Sequence):
 
     def shift_left(self, value):  # type: (Color) -> None
         for pixel_index in range(1, len(self) + 1):
-            # no need to update the leftmost pixel
-            if pixel_index == 0:
-                continue
-
             if pixel_index == len(self):
                 right_pixel_value = value
             else:
@@ -323,6 +318,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rows', '-r', type=int, default=4)
     parser.add_argument('--cols', '-c', type=int, default=4)
+    parser.add_argument('--brightness', '-b', type=float, default=1)
     parser.add_argument('--delay', '-d', type=float, default=0.2)
     parser.add_argument('--orient', '-o', default='ALTERNATING_COLUMN')
     parser.add_argument('--start', '-s', default='NORTHEAST')
@@ -332,6 +328,7 @@ if __name__ == '__main__':
     matrix = LedMatrix(
         num_rows=args.rows,
         num_cols=args.cols,
+        brightness=args.brightness,
         origin=getattr(MATRIX_ORIGIN, args.start),
         orientation=getattr(MATRIX_ORIENTATION, args.orient),
         default_color=getattr(colors, args.color),
