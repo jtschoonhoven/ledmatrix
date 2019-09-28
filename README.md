@@ -1,6 +1,15 @@
 # ledmatrix
 Python library for driving LED displays from a Raspberry Pi.
 
+
+**Prototype in terminal...**
+
+![cli](https://media.giphy.com/media/Pk4YTEgU8PbAByxyOY/giphy.gif)
+
+**...then run on Neopixel!**
+
+![irl](https://media.giphy.com/media/lqS1BUZZ5LLGOgqI0R/giphy.gif)
+
 ```bash
 # clone library
 git clone https://github.com/jtschoonhoven/ledmatrix.git
